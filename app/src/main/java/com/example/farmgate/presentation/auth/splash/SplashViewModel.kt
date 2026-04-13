@@ -1,12 +1,9 @@
 package com.example.farmgate.presentation.auth.splash
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.farmgate.core.common.Resource
 import com.example.farmgate.core.datastore.SessionManager
-import com.example.farmgate.core.navigation.Graph
 import com.example.farmgate.core.navigation.Routes
 import com.example.farmgate.data.model.RoleType
 import com.example.farmgate.data.repository.ProfileRepository
@@ -38,34 +35,18 @@ class SplashViewModel(
         viewModelScope.launch {
             val session = sessionManager.sessionFlow.first()
 
+            _uiState.value = SplashUiState(isLoading = false)
+
             if (!session.isLoggedIn) {
-                _uiState.value = SplashUiState(isLoading = false)
                 _navigation.emit(Routes.LOGIN)
                 return@launch
             }
 
-            when (val result = profileRepository.getMyProfile()) {
-                is Resource.Success -> {
-                    val profile = result.data
-                    _uiState.value = SplashUiState(isLoading = false)
-                    _navigation.emit(
-                        value = Routes.graphForRole(RoleType.fromString(session.role))
-                    )
-                }
-
-                is Resource.Error -> {
-                    sessionManager.clearSession()
-                    _uiState.value = SplashUiState(
-                        isLoading = false,
-                        errorMessage = result.message
-                    )
-                    _navigation.emit(Graph.AUTH)
-                }
-
-                is Resource.Loading -> {
-                    _uiState.value = SplashUiState(isLoading = true)
-                }
-            }
+            _navigation.emit(
+                Routes.graphForRole(
+                    RoleType.fromString(session.role)
+                )
+            )
         }
     }
 

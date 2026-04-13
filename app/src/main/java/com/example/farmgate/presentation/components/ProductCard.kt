@@ -1,6 +1,5 @@
 package com.example.farmgate.presentation.components
 
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +17,8 @@ fun ProductCard(
     product: ProductSummary,
     modifier: Modifier = Modifier
 ) {
+    val unitLabel = product.unitType.name.lowercase()
+
     Card(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -41,12 +42,12 @@ fun ProductCard(
             )
 
             Text(
-                text = "Price: ${product.pricePerUnit} per ${product.unitType.name}",
+                text = "Price: ${product.pricePerUnit} per $unitLabel",
                 style = MaterialTheme.typography.bodyMedium
             )
 
             Text(
-                text = "Available: ${product.availableQuantity} ${product.unitType.name}",
+                text = "Available: ${product.availableQuantity} $unitLabel",
                 style = MaterialTheme.typography.bodySmall
             )
         }
