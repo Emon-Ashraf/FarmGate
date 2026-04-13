@@ -11,5 +11,6 @@ data class CustomerHomeUiState(
     val selectedCityId: Long? = null,
     val selectedCityName: String? = null,
     val products: List<ProductSummary> = emptyList(),
-    val errorMessage: String? = null
+    val screenErrorMessage: String? = null,
+    val productsErrorMessage: String? = null
 )

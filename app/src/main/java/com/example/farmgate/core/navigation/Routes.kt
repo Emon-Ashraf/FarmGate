@@ -19,6 +19,13 @@ object Routes {
     const val CUSTOMER_ORDERS = "customer_orders"
     const val CUSTOMER_PROFILE = "customer_profile"
 
+    const val CUSTOMER_PRODUCT_DETAILS = "customer_product_details/{productId}"
+    const val PRODUCT_ID_ARG = "productId"
+
+    fun customerProductDetails(productId: Long): String {
+        return "customer_product_details/$productId"
+    }
+
     const val FARMER_DASHBOARD = "farmer_dashboard"
     const val FARMER_ORDERS = "farmer_orders"
     const val FARMER_PRODUCTS = "farmer_products"

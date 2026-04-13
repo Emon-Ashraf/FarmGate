@@ -29,7 +29,8 @@ class CustomerHomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                screenErrorMessage = null,
+                productsErrorMessage = null
             )
 
             val profileResult = profileRepository.getMyProfile()
@@ -38,7 +39,7 @@ class CustomerHomeViewModel(
             if (profileResult is Resource.Error) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = profileResult.message
+                    screenErrorMessage = profileResult.message
                 )
                 return@launch
             }
@@ -46,7 +47,7 @@ class CustomerHomeViewModel(
             if (citiesResult is Resource.Error) {
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    errorMessage = citiesResult.message
+                    screenErrorMessage = citiesResult.message
                 )
                 return@launch
             }
@@ -65,7 +66,8 @@ class CustomerHomeViewModel(
                 cities = cities,
                 selectedCityId = initialSelectedCityId,
                 selectedCityName = initialSelectedCityName,
-                errorMessage = null
+                screenErrorMessage = null,
+                productsErrorMessage = null
             )
 
             if (initialSelectedCityId != null) {
@@ -75,7 +77,13 @@ class CustomerHomeViewModel(
     }
 
     fun onRetry() {
-        loadHomeData()
+        val currentState = _uiState.value
+
+        if (currentState.cities.isEmpty() || currentState.selectedCityId == null) {
+            loadHomeData()
+        } else {
+            loadProductsForCity(currentState.selectedCityId)
+        }
     }
 
     fun onCitySelected(cityId: Long) {
@@ -85,7 +93,7 @@ class CustomerHomeViewModel(
             selectedCityId = cityId,
             selectedCityName = selectedCity?.name,
             products = emptyList(),
-            errorMessage = null
+            productsErrorMessage = null
         )
 
         loadProductsForCity(cityId)
@@ -95,7 +103,7 @@ class CustomerHomeViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isProductsLoading = true,
-                errorMessage = null
+                productsErrorMessage = null
             )
 
             when (val result = productRepository.searchProducts(cityId = cityId)) {
@@ -103,21 +111,21 @@ class CustomerHomeViewModel(
                     _uiState.value = _uiState.value.copy(
                         isProductsLoading = false,
                         products = result.data,
-                        errorMessage = null
+                        productsErrorMessage = null
                     )
                 }
 
                 is Resource.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isProductsLoading = false,
-                        errorMessage = result.message
+                        productsErrorMessage = result.message
                     )
                 }
 
                 is Resource.Loading -> {
                     _uiState.value = _uiState.value.copy(
                         isProductsLoading = true,
-                        errorMessage = null
+                        productsErrorMessage = null
                     )
                 }
             }

@@ -11,9 +11,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.navArgument
 import com.example.farmgate.FarmGateApplication
 import com.example.farmgate.presentation.auth.login.LoginScreen
 import com.example.farmgate.presentation.auth.login.LoginViewModel
@@ -21,11 +23,10 @@ import com.example.farmgate.presentation.auth.register.RegisterScreen
 import com.example.farmgate.presentation.auth.register.RegisterViewModel
 import com.example.farmgate.presentation.auth.splash.SplashScreen
 import com.example.farmgate.presentation.auth.splash.SplashViewModel
-
-import com.example.farmgate.data.repository.CityRepository
-import com.example.farmgate.data.repository.ProfileRepository
 import com.example.farmgate.presentation.customer.home.CustomerHomeScreen
 import com.example.farmgate.presentation.customer.home.CustomerHomeViewModel
+import com.example.farmgate.presentation.customer.productdetails.ProductDetailsScreen
+import com.example.farmgate.presentation.customer.productdetails.ProductDetailsViewModel
 
 @Composable
 fun AppNavGraph(
@@ -136,7 +137,35 @@ fun AppNavGraph(
                 CustomerHomeScreen(
                     uiState = uiState,
                     onCitySelected = viewModel::onCitySelected,
-                    onRetry = viewModel::onRetry
+                    onRetry = viewModel::onRetry,
+                    onProductClick = { productId ->
+                        navController.navigate(Routes.customerProductDetails(productId))
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.CUSTOMER_PRODUCT_DETAILS,
+                arguments = listOf(
+                    navArgument(Routes.PRODUCT_ID_ARG) {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val productId = backStackEntry.arguments?.getLong(Routes.PRODUCT_ID_ARG) ?: 0L
+
+                val viewModel: ProductDetailsViewModel = viewModel(
+                    factory = ProductDetailsViewModel.Factory(
+                        productRepository = appContainer.productRepository,
+                        productId = productId
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                ProductDetailsScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onRetry = viewModel::loadProduct
                 )
             }
 

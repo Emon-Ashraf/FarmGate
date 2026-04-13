@@ -1,5 +1,6 @@
 package com.example.farmgate.presentation.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +16,15 @@ import com.example.farmgate.data.model.ProductSummary
 @Composable
 fun ProductCard(
     product: ProductSummary,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val unitLabel = product.unitType.name.lowercase()
 
     Card(
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),

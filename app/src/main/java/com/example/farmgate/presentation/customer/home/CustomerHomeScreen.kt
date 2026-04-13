@@ -23,7 +23,8 @@ import com.example.farmgate.presentation.components.ProductCard
 fun CustomerHomeScreen(
     uiState: CustomerHomeUiState,
     onCitySelected: (Long) -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onProductClick: (Long) -> Unit
 ) {
     if (uiState.isLoading) {
         Column(
@@ -41,6 +42,28 @@ fun CustomerHomeScreen(
                 style = MaterialTheme.typography.bodyMedium
             )
             CircularProgressIndicator()
+        }
+        return
+    }
+
+    if (uiState.screenErrorMessage != null) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "FarmGate",
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = uiState.screenErrorMessage,
+                color = MaterialTheme.colorScheme.error
+            )
+            TextButton(onClick = onRetry) {
+                Text(text = "Retry")
+            }
         }
         return
     }
@@ -110,11 +133,11 @@ fun CustomerHomeScreen(
             item {
                 CircularProgressIndicator()
             }
-        } else if (uiState.errorMessage != null) {
+        } else if (uiState.productsErrorMessage != null) {
             item {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(
-                        text = uiState.errorMessage,
+                        text = uiState.productsErrorMessage,
                         color = MaterialTheme.colorScheme.error
                     )
                     TextButton(onClick = onRetry) {
@@ -131,7 +154,10 @@ fun CustomerHomeScreen(
             }
         } else {
             items(uiState.products) { product ->
-                ProductCard(product = product)
+                ProductCard(
+                    product = product,
+                    onClick = { onProductClick(product.id) }
+                )
             }
         }
     }

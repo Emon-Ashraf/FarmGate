@@ -46,7 +46,7 @@ class AppContainer(
     }
 
     val productsApi: ProductsApi by lazy {
-        ApiClient.provideProductsApi(context)
+        ApiClient.provideProductsApi(appContext)
     }
 
     val productRepository: ProductRepository by lazy {
