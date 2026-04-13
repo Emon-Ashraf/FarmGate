@@ -1,10 +1,10 @@
 package com.example.farmgate.data.remote.dto.profile
 
-
 data class ProfileResponseDto(
-    val userId: String,
+    val userId: Long,
     val fullName: String,
-    val phone: String?,
+    val phoneNumber: String,
     val email: String?,
-    val role: String
+    val primaryCityId: Long?,
+    val primaryCityName: String?
 )

@@ -5,9 +5,10 @@ import android.content.Context
 import com.example.farmgate.core.datastore.SessionManager
 import com.example.farmgate.core.network.ApiClient
 import com.example.farmgate.data.repository.AuthRepository
-import com.example.farmgate.data.repository.CitiesRepository
+import com.example.farmgate.data.repository.CityRepository
 import com.example.farmgate.data.repository.ProfileRepository
-
+import com.example.farmgate.data.remote.api.ProductsApi
+import com.example.farmgate.data.repository.ProductRepository
 class AppContainer(
     context: Context
 ) {
@@ -40,7 +41,15 @@ class AppContainer(
         ProfileRepository(profileApi = profileApi)
     }
 
-    val citiesRepository: CitiesRepository by lazy {
-        CitiesRepository(citiesApi = citiesApi)
+    val cityRepository: CityRepository by lazy {
+        CityRepository(citiesApi)
+    }
+
+    val productsApi: ProductsApi by lazy {
+        ApiClient.provideProductsApi(context)
+    }
+
+    val productRepository: ProductRepository by lazy {
+        ProductRepository(productsApi)
     }
 }

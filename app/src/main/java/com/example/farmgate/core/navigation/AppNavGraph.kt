@@ -22,6 +22,11 @@ import com.example.farmgate.presentation.auth.register.RegisterViewModel
 import com.example.farmgate.presentation.auth.splash.SplashScreen
 import com.example.farmgate.presentation.auth.splash.SplashViewModel
 
+import com.example.farmgate.data.repository.CityRepository
+import com.example.farmgate.data.repository.ProfileRepository
+import com.example.farmgate.presentation.customer.home.CustomerHomeScreen
+import com.example.farmgate.presentation.customer.home.CustomerHomeViewModel
+
 @Composable
 fun AppNavGraph(
     navController: NavHostController
@@ -119,7 +124,20 @@ fun AppNavGraph(
             route = Graph.CUSTOMER
         ) {
             composable(Routes.CUSTOMER_HOME) {
-                PlaceholderScreen(title = "Customer Home")
+                val viewModel: CustomerHomeViewModel = viewModel(
+                    factory = CustomerHomeViewModel.Factory(
+                        profileRepository = appContainer.profileRepository,
+                        cityRepository = appContainer.cityRepository,
+                        productRepository = appContainer.productRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                CustomerHomeScreen(
+                    uiState = uiState,
+                    onCitySelected = viewModel::onCitySelected,
+                    onRetry = viewModel::onRetry
+                )
             }
 
             composable(Routes.CUSTOMER_ORDERS) {

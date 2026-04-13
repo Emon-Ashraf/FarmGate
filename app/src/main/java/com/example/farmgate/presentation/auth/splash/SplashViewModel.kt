@@ -8,6 +8,7 @@ import com.example.farmgate.core.common.Resource
 import com.example.farmgate.core.datastore.SessionManager
 import com.example.farmgate.core.navigation.Graph
 import com.example.farmgate.core.navigation.Routes
+import com.example.farmgate.data.model.RoleType
 import com.example.farmgate.data.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,13 +47,10 @@ class SplashViewModel(
             when (val result = profileRepository.getMyProfile()) {
                 is Resource.Success -> {
                     val profile = result.data
-                    sessionManager.saveSession(
-                        token = session.token,
-                        role = profile.role.name,
-                        userId = profile.userId
-                    )
                     _uiState.value = SplashUiState(isLoading = false)
-                    _navigation.emit(Routes.graphForRole(profile.role))
+                    _navigation.emit(
+                        value = Routes.graphForRole(RoleType.fromString(session.role))
+                    )
                 }
 
                 is Resource.Error -> {

@@ -1,9 +1,10 @@
 package com.example.farmgate.data.model
 
 data class UserProfile(
-    val userId: String,
+    val userId: Long,
     val fullName: String,
-    val phone: String?,
+    val phoneNumber: String,
     val email: String?,
-    val role: RoleType
+    val primaryCityId: Long?,
+    val primaryCityName: String?
 )

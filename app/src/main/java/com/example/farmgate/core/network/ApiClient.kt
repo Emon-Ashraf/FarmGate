@@ -14,6 +14,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
+import com.example.farmgate.data.remote.api.ProductsApi
+
 object ApiClient {
 
     private fun provideGson(): Gson {
@@ -63,5 +65,10 @@ object ApiClient {
     fun provideCitiesApi(context: Context): CitiesApi {
         val sessionManager = SessionManager(context.applicationContext)
         return provideRetrofit(sessionManager).create(CitiesApi::class.java)
+    }
+
+    fun provideProductsApi(context: Context): ProductsApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(ProductsApi::class.java)
     }
 }

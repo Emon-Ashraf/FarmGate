@@ -1,7 +1,6 @@
 package com.example.farmgate.data.model
 
-
 data class City(
-    val id: String,
+    val id: Long,
     val name: String
 )

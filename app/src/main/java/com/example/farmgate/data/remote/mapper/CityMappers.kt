@@ -1,6 +1,5 @@
 package com.example.farmgate.data.remote.mapper
 
-
 import com.example.farmgate.data.model.City
 import com.example.farmgate.data.remote.dto.city.CityResponseDto
 
