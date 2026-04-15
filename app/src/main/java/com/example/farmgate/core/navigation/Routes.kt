@@ -18,12 +18,20 @@ object Routes {
     const val CUSTOMER_HOME = "customer_home"
     const val CUSTOMER_ORDERS = "customer_orders"
     const val CUSTOMER_PROFILE = "customer_profile"
+    const val CUSTOMER_REVIEW_ORDER = "customer_review_order"
 
     const val CUSTOMER_PRODUCT_DETAILS = "customer_product_details/{productId}"
     const val PRODUCT_ID_ARG = "productId"
 
+    const val CUSTOMER_ORDER_DETAILS = "customer_order_details/{orderId}"
+    const val ORDER_ID_ARG = "orderId"
+
     fun customerProductDetails(productId: Long): String {
         return "customer_product_details/$productId"
+    }
+
+    fun customerOrderDetails(orderId: Long): String {
+        return "customer_order_details/$orderId"
     }
 
     const val FARMER_DASHBOARD = "farmer_dashboard"
@@ -32,6 +40,7 @@ object Routes {
     const val FARMER_PROFILE = "farmer_profile"
 
     const val ADMIN_ISSUES = "admin_issues"
+
 
     fun graphForRole(role: RoleType): String {
         return when (role) {

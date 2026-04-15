@@ -5,6 +5,8 @@ import com.example.farmgate.BuildConfig
 import com.example.farmgate.core.datastore.SessionManager
 import com.example.farmgate.data.remote.api.AuthApi
 import com.example.farmgate.data.remote.api.CitiesApi
+import com.example.farmgate.data.remote.api.OrdersApi
+import com.example.farmgate.data.remote.api.ProductsApi
 import com.example.farmgate.data.remote.api.ProfileApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -13,8 +15,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
-
-import com.example.farmgate.data.remote.api.ProductsApi
 
 object ApiClient {
 
@@ -70,5 +70,10 @@ object ApiClient {
     fun provideProductsApi(context: Context): ProductsApi {
         val sessionManager = SessionManager(context.applicationContext)
         return provideRetrofit(sessionManager).create(ProductsApi::class.java)
+    }
+
+    fun provideOrdersApi(context: Context): OrdersApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(OrdersApi::class.java)
     }
 }

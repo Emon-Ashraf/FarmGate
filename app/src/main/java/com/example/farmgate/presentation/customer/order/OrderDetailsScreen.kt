@@ -1,4 +1,4 @@
-package com.example.farmgate.presentation.customer.productdetails
+package com.example.farmgate.presentation.customer.order
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,34 +7,21 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProductDetailsScreen(
-    uiState: ProductDetailsUiState,
+fun OrderDetailsScreen(
+    uiState: OrderDetailsUiState,
     onBackClick: () -> Unit,
-    onRetry: () -> Unit,
-    onOrderQuantityChanged: (String) -> Unit,
-    onAddToOrderClick: () -> Unit,
-    onReviewOrderClick: () -> Unit,
-    onNavigation: suspend () -> Unit
+    onRetry: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        onNavigation()
-    }
-
     when {
         uiState.isLoading -> {
             Column(
@@ -44,7 +31,7 @@ fun ProductDetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Product Details",
+                    text = "Order Details",
                     style = MaterialTheme.typography.headlineMedium
                 )
                 CircularProgressIndicator()
@@ -59,28 +46,24 @@ fun ProductDetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Product Details",
+                    text = "Order Details",
                     style = MaterialTheme.typography.headlineMedium
                 )
-
                 Text(
                     text = uiState.errorMessage,
                     color = MaterialTheme.colorScheme.error
                 )
-
                 TextButton(onClick = onRetry) {
                     Text("Retry")
                 }
-
                 TextButton(onClick = onBackClick) {
                     Text("Back")
                 }
             }
         }
 
-        uiState.product != null -> {
-            val product = uiState.product
-            val unitLabel = product.unitType.name.lowercase()
+        uiState.order != null -> {
+            val order = uiState.order
 
             Column(
                 modifier = Modifier
@@ -94,7 +77,7 @@ fun ProductDetailsScreen(
                 }
 
                 Text(
-                    text = product.name,
+                    text = "Order #${order.id}",
                     style = MaterialTheme.typography.headlineMedium
                 )
 
@@ -106,13 +89,11 @@ fun ProductDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Overview",
+                            text = "Status",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = "Category: ${product.category ?: "-"}")
-                        Text(text = "Price: ${product.pricePerUnit} per $unitLabel")
-                        Text(text = "Available: ${product.availableQuantity} $unitLabel")
-                        Text(text = "Description: ${product.description ?: "-"}")
+                        Text(text = "Current Status: ${order.status.name}")
+                        Text(text = "Cancellation Reason: ${order.cancellationReason?.name ?: "-"}")
                     }
                 }
 
@@ -124,14 +105,12 @@ fun ProductDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Pickup Information",
+                            text = "People",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = "Area: ${product.pickupArea}")
-                        Text(text = "City: ${product.cityName}")
-                        Text(text = "Address: ${product.pickupAddress}")
-                        Text(text = "Instructions: ${product.instructions ?: "-"}")
-                        Text(text = "Pickup only")
+                        Text(text = "Customer: ${order.customerName ?: "-"}")
+                        Text(text = "Farmer: ${order.farmerName ?: "-"}")
+                        Text(text = "Farmer Phone: ${order.farmerPhone ?: "-"}")
                     }
                 }
 
@@ -143,11 +122,13 @@ fun ProductDetailsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Farmer",
+                            text = "Amounts",
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = "Name: ${product.farmerName}")
-                        Text(text = "Phone: ${product.farmerPhone ?: "-"}")
+                        Text(text = "Estimated Total: ${order.estimatedProductTotal}")
+                        Text(text = "Actual Total: ${order.actualProductTotal ?: "-"}")
+                        Text(text = "Service Fee: ${order.serviceFeeAmount}")
+                        Text(text = "Fee Paid At: ${order.feePaidAt ?: "-"}")
                     }
                 }
 
@@ -156,52 +137,56 @@ fun ProductDetailsScreen(
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
-                            text = "Add to Order",
+                            text = "Pickup",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(text = "City: ${order.pickupCity ?: "-"}")
+                        Text(text = "Area: ${order.pickupArea ?: "-"}")
+                        Text(text = "Address: ${order.pickupAddress ?: "-"}")
+                        Text(text = "Instructions: ${order.pickupInstructions ?: "-"}")
+                        Text(text = "Pickup Due: ${order.pickupDueAt}")
+                    }
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "Items",
                             style = MaterialTheme.typography.titleMedium
                         )
 
-                        OutlinedTextField(
-                            value = uiState.orderQuantity,
-                            onValueChange = onOrderQuantityChanged,
-                            label = { Text("Quantity") },
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Decimal
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        uiState.orderErrorMessage?.let {
+                        order.items.forEach { item ->
                             Text(
-                                text = it,
-                                color = MaterialTheme.colorScheme.error
+                                text = "${item.productName} - ${item.orderedQuantity} ${item.unitType.name.lowercase()} x ${item.unitPrice}"
                             )
                         }
+                    }
+                }
 
-                        uiState.infoMessage?.let {
-                            Text(
-                                text = it,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        }
-
-                        Button(
-                            onClick = onAddToOrderClick,
-                            modifier = Modifier.fillMaxWidth()
+                order.payment?.let { payment ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Text("Add to Order")
-                        }
-
-                        if (uiState.hasActiveDraft) {
-                            Button(
-                                onClick = onReviewOrderClick,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Review Order")
-                            }
+                            Text(
+                                text = "Payment",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+                            Text(text = "Amount: ${payment.amount}")
+                            Text(text = "Status: ${payment.status.name}")
+                            Text(text = "Reference: ${payment.transactionReference ?: "-"}")
+                            Text(text = "Paid At: ${payment.paidAt ?: "-"}")
                         }
                     }
                 }
