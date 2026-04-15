@@ -6,21 +6,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.example.farmgate.data.model.OrderStatus
 
 @Composable
 fun OrderDetailsScreen(
     uiState: OrderDetailsUiState,
     onBackClick: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onCancelNoteChanged: (String) -> Unit,
+    onPaymentReferenceChanged: (String) -> Unit,
+    onCancelOrderClick: () -> Unit,
+    onConfirmFeeClick: () -> Unit
 ) {
     when {
         uiState.isLoading -> {
@@ -187,6 +196,92 @@ fun OrderDetailsScreen(
                             Text(text = "Status: ${payment.status.name}")
                             Text(text = "Reference: ${payment.transactionReference ?: "-"}")
                             Text(text = "Paid At: ${payment.paidAt ?: "-"}")
+                        }
+                    }
+                }
+
+                if (uiState.actionErrorMessage != null) {
+                    Text(
+                        text = uiState.actionErrorMessage,
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+
+                if (uiState.actionSuccessMessage != null) {
+                    Text(
+                        text = uiState.actionSuccessMessage,
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+
+                if (order.status == OrderStatus.Pending || order.status == OrderStatus.AwaitingFee) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "Cancel Order",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            OutlinedTextField(
+                                value = uiState.cancelNote,
+                                onValueChange = onCancelNoteChanged,
+                                label = { Text("Optional note") },
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            Button(
+                                onClick = onCancelOrderClick,
+                                enabled = !uiState.isCancelling,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = if (uiState.isCancelling) "Cancelling..." else "Cancel Order"
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (order.status == OrderStatus.AwaitingFee) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "Confirm Service Fee",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text("This confirms only the platform service fee.")
+                            Text("Product payment is still made directly to farmer at pickup.")
+
+                            OutlinedTextField(
+                                value = uiState.paymentReference,
+                                onValueChange = onPaymentReferenceChanged,
+                                label = { Text("Optional payment reference") },
+                                modifier = Modifier.fillMaxWidth(),
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Text
+                                )
+                            )
+
+                            Button(
+                                onClick = onConfirmFeeClick,
+                                enabled = !uiState.isConfirmingFee,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = if (uiState.isConfirmingFee) "Confirming..." else "Confirm Service Fee"
+                                )
+                            }
                         }
                     }
                 }

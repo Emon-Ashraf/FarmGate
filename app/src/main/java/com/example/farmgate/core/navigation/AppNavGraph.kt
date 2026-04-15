@@ -135,7 +135,8 @@ fun AppNavGraph(
                     factory = CustomerHomeViewModel.Factory(
                         profileRepository = appContainer.profileRepository,
                         cityRepository = appContainer.cityRepository,
-                        productRepository = appContainer.productRepository
+                        productRepository = appContainer.productRepository,
+                        orderDraftRepository = appContainer.orderDraftRepository
                     )
                 )
                 val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -146,6 +147,12 @@ fun AppNavGraph(
                     onRetry = viewModel::onRetry,
                     onProductClick = { productId ->
                         navController.navigate(Routes.customerProductDetails(productId))
+                    },
+                    onReviewOrderClick = {
+                        navController.navigate(Routes.CUSTOMER_REVIEW_ORDER)
+                    },
+                    onMyOrdersClick = {
+                        navController.navigate(Routes.CUSTOMER_ORDERS)
                     }
                 )
             }
@@ -249,7 +256,11 @@ fun AppNavGraph(
                 OrderDetailsScreen(
                     uiState = uiState,
                     onBackClick = { navController.popBackStack() },
-                    onRetry = viewModel::loadOrder
+                    onRetry = viewModel::loadOrder,
+                    onCancelNoteChanged = viewModel::onCancelNoteChanged,
+                    onPaymentReferenceChanged = viewModel::onPaymentReferenceChanged,
+                    onCancelOrderClick = viewModel::cancelOrder,
+                    onConfirmFeeClick = viewModel::confirmServiceFee
                 )
             }
 

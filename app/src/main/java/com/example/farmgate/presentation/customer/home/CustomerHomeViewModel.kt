@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.farmgate.core.common.Resource
 import com.example.farmgate.data.repository.CityRepository
+import com.example.farmgate.data.repository.OrderDraftRepository
 import com.example.farmgate.data.repository.ProductRepository
 import com.example.farmgate.data.repository.ProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import kotlinx.coroutines.launch
 class CustomerHomeViewModel(
     private val profileRepository: ProfileRepository,
     private val cityRepository: CityRepository,
-    private val productRepository: ProductRepository
+    private val productRepository: ProductRepository,
+    private val orderDraftRepository: OrderDraftRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CustomerHomeUiState(isLoading = true))
@@ -23,6 +25,14 @@ class CustomerHomeViewModel(
 
     init {
         loadHomeData()
+
+        viewModelScope.launch {
+            orderDraftRepository.draft.collect { draft ->
+                _uiState.value = _uiState.value.copy(
+                    hasActiveDraft = draft != null
+                )
+            }
+        }
     }
 
     fun loadHomeData() {
@@ -135,14 +145,16 @@ class CustomerHomeViewModel(
     class Factory(
         private val profileRepository: ProfileRepository,
         private val cityRepository: CityRepository,
-        private val productRepository: ProductRepository
+        private val productRepository: ProductRepository,
+        private val orderDraftRepository: OrderDraftRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return CustomerHomeViewModel(
                 profileRepository = profileRepository,
                 cityRepository = cityRepository,
-                productRepository = productRepository
+                productRepository = productRepository,
+                orderDraftRepository = orderDraftRepository
             ) as T
         }
     }
