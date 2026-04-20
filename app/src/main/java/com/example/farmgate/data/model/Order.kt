@@ -20,6 +20,7 @@ data class Order(
     val pickupAddress: String? = null,
     val pickupInstructions: String? = null,
     val farmerPhone: String? = null,
+    val pickupCode: String? = null,
 
     val createdAt: String,
     val items: List<OrderItem> = emptyList(),

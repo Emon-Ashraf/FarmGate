@@ -1,4 +1,4 @@
-package com.example.farmgate.presentation.customer.order
+package com.example.farmgate.presentation.farmer.order
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,14 +22,15 @@ import androidx.compose.ui.unit.dp
 import com.example.farmgate.data.model.OrderStatus
 
 @Composable
-fun OrderDetailsScreen(
-    uiState: OrderDetailsUiState,
+fun FarmerOrderDetailsScreen(
+    uiState: FarmerOrderDetailsUiState,
     onBackClick: () -> Unit,
     onRetry: () -> Unit,
-    onCancelNoteChanged: (String) -> Unit,
-    onPaymentReferenceChanged: (String) -> Unit,
-    onCancelOrderClick: () -> Unit,
-    onConfirmFeeClick: () -> Unit
+    onAcceptClick: () -> Unit,
+    onRejectClick: () -> Unit,
+    onPickupCodeChanged: (String) -> Unit,
+    onFulfilledQuantityChanged: (Long, String) -> Unit,
+    onCompleteClick: () -> Unit
 ) {
     when {
         uiState.isLoading -> {
@@ -40,7 +41,7 @@ fun OrderDetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 Text(
-                    text = "Order Details",
+                    text = "Farmer Order Details",
                     style = MaterialTheme.typography.headlineMedium
                 )
                 CircularProgressIndicator()
@@ -55,7 +56,7 @@ fun OrderDetailsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
-                    text = "Order Details",
+                    text = "Farmer Order Details",
                     style = MaterialTheme.typography.headlineMedium
                 )
                 Text(
@@ -97,12 +98,8 @@ fun OrderDetailsScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Status",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(text = "Current Status: ${order.status.name}")
-                        Text(text = "Cancellation Reason: ${order.cancellationReason?.name ?: "-"}")
+                        Text("Status", style = MaterialTheme.typography.titleMedium)
+                        Text("Current Status: ${order.status.name}")
                     }
                 }
 
@@ -113,13 +110,9 @@ fun OrderDetailsScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "People",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(text = "Customer: ${order.customerName ?: "-"}")
-                        Text(text = "Farmer: ${order.farmerName ?: "-"}")
-                        Text(text = "Farmer Phone: ${order.farmerPhone ?: "-"}")
+                        Text("People", style = MaterialTheme.typography.titleMedium)
+                        Text("Customer: ${order.customerName ?: "-"}")
+                        Text("Farmer: ${order.farmerName ?: "-"}")
                     }
                 }
 
@@ -130,14 +123,10 @@ fun OrderDetailsScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Amounts",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(text = "Estimated Total: ${order.estimatedProductTotal}")
-                        Text(text = "Actual Total: ${order.actualProductTotal ?: "-"}")
-                        Text(text = "Service Fee: ${order.serviceFeeAmount}")
-                        Text(text = "Fee Paid At: ${order.feePaidAt ?: "-"}")
+                        Text("Amounts", style = MaterialTheme.typography.titleMedium)
+                        Text("Estimated Total: ${order.estimatedProductTotal}")
+                        Text("Actual Total: ${order.actualProductTotal ?: "-"}")
+                        Text("Service Fee: ${order.serviceFeeAmount}")
                     }
                 }
 
@@ -148,16 +137,12 @@ fun OrderDetailsScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Pickup",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(text = "City: ${order.pickupCity ?: "-"}")
-                        Text(text = "Area: ${order.pickupArea ?: "-"}")
-                        Text(text = "Address: ${order.pickupAddress ?: "-"}")
-                        Text(text = "Instructions: ${order.pickupInstructions ?: "-"}")
-                        Text(text = "Pickup Due: ${order.pickupDueAt}")
-                        Text(text = "Pickup Code: ${order.pickupCode ?: "-"}")
+                        Text("Pickup", style = MaterialTheme.typography.titleMedium)
+                        Text("City: ${order.pickupCity ?: "-"}")
+                        Text("Area: ${order.pickupArea ?: "-"}")
+                        Text("Address: ${order.pickupAddress ?: "-"}")
+                        Text("Instructions: ${order.pickupInstructions ?: "-"}")
+                        Text("Pickup Due: ${order.pickupDueAt}")
                     }
                 }
 
@@ -168,35 +153,10 @@ fun OrderDetailsScreen(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text(
-                            text = "Items",
-                            style = MaterialTheme.typography.titleMedium
-                        )
+                        Text("Items", style = MaterialTheme.typography.titleMedium)
 
                         order.items.forEach { item ->
-                            Text(
-                                text = "${item.productName} - ${item.orderedQuantity} ${item.unitType.name.lowercase()} x ${item.unitPrice}"
-                            )
-                        }
-                    }
-                }
-
-                order.payment?.let { payment ->
-                    Card(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Payment",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                            Text(text = "Amount: ${payment.amount}")
-                            Text(text = "Status: ${payment.status.name}")
-                            Text(text = "Reference: ${payment.transactionReference ?: "-"}")
-                            Text(text = "Paid At: ${payment.paidAt ?: "-"}")
+                            Text("${item.productName} - ordered: ${item.orderedQuantity} ${item.unitType.name.lowercase()} x ${item.unitPrice}")
                         }
                     }
                 }
@@ -215,40 +175,25 @@ fun OrderDetailsScreen(
                     )
                 }
 
-                if (order.status == OrderStatus.Pending || order.status == OrderStatus.AwaitingFee) {
-                    Card(
+                if (order.status == OrderStatus.Pending) {
+                    Button(
+                        onClick = onAcceptClick,
+                        enabled = !uiState.isAccepting,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = "Cancel Order",
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                        Text(if (uiState.isAccepting) "Accepting..." else "Accept Order")
+                    }
 
-                            OutlinedTextField(
-                                value = uiState.cancelNote,
-                                onValueChange = onCancelNoteChanged,
-                                label = { Text("Optional note") },
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            Button(
-                                onClick = onCancelOrderClick,
-                                enabled = !uiState.isCancelling,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    text = if (uiState.isCancelling) "Cancelling..." else "Cancel Order"
-                                )
-                            }
-                        }
+                    Button(
+                        onClick = onRejectClick,
+                        enabled = !uiState.isRejecting,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text(if (uiState.isRejecting) "Rejecting..." else "Reject Order")
                     }
                 }
 
-                if (order.status == OrderStatus.AwaitingFee) {
+                if (order.status == OrderStatus.Confirmed) {
                     Card(
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -257,30 +202,41 @@ fun OrderDetailsScreen(
                             verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Text(
-                                text = "Confirm Service Fee",
+                                text = "Complete Order by OTP",
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            Text("This confirms only the platform service fee.")
-                            Text("Product payment is still made directly to farmer at pickup.")
-
                             OutlinedTextField(
-                                value = uiState.paymentReference,
-                                onValueChange = onPaymentReferenceChanged,
-                                label = { Text("Optional payment reference") },
+                                value = uiState.pickupCode,
+                                onValueChange = onPickupCodeChanged,
+                                label = { Text("Pickup Code") },
                                 modifier = Modifier.fillMaxWidth(),
+                                singleLine = true,
                                 keyboardOptions = KeyboardOptions(
-                                    keyboardType = KeyboardType.Text
+                                    keyboardType = KeyboardType.Number
                                 )
                             )
 
+                            order.items.forEach { item ->
+                                OutlinedTextField(
+                                    value = uiState.fulfilledQuantities[item.id].orEmpty(),
+                                    onValueChange = { onFulfilledQuantityChanged(item.id, it) },
+                                    label = { Text("Fulfilled Quantity - ${item.productName}") },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    singleLine = true,
+                                    keyboardOptions = KeyboardOptions(
+                                        keyboardType = KeyboardType.Decimal
+                                    )
+                                )
+                            }
+
                             Button(
-                                onClick = onConfirmFeeClick,
-                                enabled = !uiState.isConfirmingFee,
+                                onClick = onCompleteClick,
+                                enabled = !uiState.isCompleting,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = if (uiState.isConfirmingFee) "Confirming..." else "Confirm Service Fee"
+                                    if (uiState.isCompleting) "Completing..." else "Complete Order"
                                 )
                             }
                         }

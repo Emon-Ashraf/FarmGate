@@ -42,6 +42,7 @@ fun OrderDetailsDto.toModel(): Order {
         pickupAddress = pickupAddress,
         pickupInstructions = pickupInstructions,
         farmerPhone = farmerPhone,
+        pickupCode = pickupCode,
         createdAt = createdAt,
         items = items.map { it.toModel() },
         payment = payment?.toModel()

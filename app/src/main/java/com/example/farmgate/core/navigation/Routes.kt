@@ -39,7 +39,14 @@ object Routes {
     const val FARMER_PRODUCTS = "farmer_products"
     const val FARMER_PROFILE = "farmer_profile"
 
+    const val FARMER_ORDER_DETAILS = "farmer_order_details/{orderId}"
+
+    fun farmerOrderDetails(orderId: Long): String {
+        return "farmer_order_details/$orderId"
+    }
+
     const val ADMIN_ISSUES = "admin_issues"
+
 
 
     fun graphForRole(role: RoleType): String {

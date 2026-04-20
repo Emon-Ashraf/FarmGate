@@ -33,6 +33,10 @@ import com.example.farmgate.presentation.customer.order.ReviewOrderScreen
 import com.example.farmgate.presentation.customer.order.ReviewOrderViewModel
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsScreen
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsViewModel
+import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
+import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
+import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
+import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
 
 @Composable
 fun AppNavGraph(
@@ -270,7 +274,7 @@ fun AppNavGraph(
         }
 
         navigation(
-            startDestination = Routes.FARMER_DASHBOARD,
+            startDestination = Routes.FARMER_ORDERS,
             route = Graph.FARMER
         ) {
             composable(Routes.FARMER_DASHBOARD) {
@@ -278,7 +282,51 @@ fun AppNavGraph(
             }
 
             composable(Routes.FARMER_ORDERS) {
-                PlaceholderScreen(title = "Farmer Orders")
+                val viewModel: FarmerOrdersViewModel = viewModel(
+                    factory = FarmerOrdersViewModel.Factory(
+                        orderRepository = appContainer.orderRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                FarmerOrdersScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onRetry = viewModel::loadOrders,
+                    onOrderClick = { orderId ->
+                        navController.navigate(Routes.farmerOrderDetails(orderId))
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.FARMER_ORDER_DETAILS,
+                arguments = listOf(
+                    navArgument(Routes.ORDER_ID_ARG) {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong(Routes.ORDER_ID_ARG) ?: 0L
+
+                val viewModel: FarmerOrderDetailsViewModel = viewModel(
+                    factory = FarmerOrderDetailsViewModel.Factory(
+                        orderRepository = appContainer.orderRepository,
+                        orderId = orderId
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                FarmerOrderDetailsScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onRetry = viewModel::loadOrder,
+                    onAcceptClick = viewModel::acceptOrder,
+                    onRejectClick = viewModel::rejectOrder,
+                    onPickupCodeChanged = viewModel::onPickupCodeChanged,
+                    onFulfilledQuantityChanged = viewModel::onFulfilledQuantityChanged,
+                    onCompleteClick = viewModel::completeOrder
+                )
             }
 
             composable(Routes.FARMER_PRODUCTS) {
