@@ -25,6 +25,8 @@ object Routes {
 
     const val CUSTOMER_ORDER_DETAILS = "customer_order_details/{orderId}"
     const val ORDER_ID_ARG = "orderId"
+    const val CUSTOMER_CREATE_RATING = "customer_create_rating/{orderId}"
+    const val CUSTOMER_CREATE_ISSUE = "customer_create_issue/{orderId}"
 
     fun customerProductDetails(productId: Long): String {
         return "customer_product_details/$productId"
@@ -56,4 +58,13 @@ object Routes {
             RoleType.Admin -> Graph.ADMIN
         }
     }
+
+    fun customerCreateRating(orderId: Long): String {
+        return "customer_create_rating/$orderId"
+    }
+
+    fun customerCreateIssue(orderId: Long): String {
+        return "customer_create_issue/$orderId"
+    }
+
 }

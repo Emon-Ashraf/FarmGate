@@ -1,7 +1,7 @@
-package com.example.farmgate.data.model
+package com.example.farmgate.data.remote.dto.rating
 
 
-data class Rating(
+data class RatingDto(
     val id: Long,
     val orderId: Long,
     val customerId: Long,

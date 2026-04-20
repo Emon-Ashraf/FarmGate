@@ -5,9 +5,11 @@ import com.example.farmgate.BuildConfig
 import com.example.farmgate.core.datastore.SessionManager
 import com.example.farmgate.data.remote.api.AuthApi
 import com.example.farmgate.data.remote.api.CitiesApi
+import com.example.farmgate.data.remote.api.IssuesApi
 import com.example.farmgate.data.remote.api.OrdersApi
 import com.example.farmgate.data.remote.api.ProductsApi
 import com.example.farmgate.data.remote.api.ProfileApi
+import com.example.farmgate.data.remote.api.RatingsApi
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
@@ -76,4 +78,15 @@ object ApiClient {
         val sessionManager = SessionManager(context.applicationContext)
         return provideRetrofit(sessionManager).create(OrdersApi::class.java)
     }
+
+    fun provideRatingsApi(context: Context): RatingsApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(RatingsApi::class.java)
+    }
+
+    fun provideIssuesApi(context: Context): IssuesApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(IssuesApi::class.java)
+    }
+
 }

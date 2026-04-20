@@ -1,14 +1,12 @@
 package com.example.farmgate.data.model
 
 
-data class IssueReport(
+data class AdminIssueListItem(
     val id: Long,
     val orderId: Long,
-    val customerId: Long,
-    val farmerId: Long,
     val title: String,
-    val description: String,
     val status: IssueStatus,
-    val adminNote: String?,
+    val customerName: String,
+    val farmerName: String,
     val createdAt: String
 )

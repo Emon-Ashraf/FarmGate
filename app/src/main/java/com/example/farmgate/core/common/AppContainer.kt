@@ -7,10 +7,12 @@ import com.example.farmgate.data.remote.api.OrdersApi
 import com.example.farmgate.data.remote.api.ProductsApi
 import com.example.farmgate.data.repository.AuthRepository
 import com.example.farmgate.data.repository.CityRepository
+import com.example.farmgate.data.repository.IssueRepository
 import com.example.farmgate.data.repository.OrderDraftRepository
 import com.example.farmgate.data.repository.OrderRepository
 import com.example.farmgate.data.repository.ProductRepository
 import com.example.farmgate.data.repository.ProfileRepository
+import com.example.farmgate.data.repository.RatingRepository
 
 class AppContainer(
     context: Context
@@ -31,6 +33,14 @@ class AppContainer(
 
     private val citiesApi by lazy {
         ApiClient.provideCitiesApi(appContext)
+    }
+
+    private val ratingsApi by lazy {
+        ApiClient.provideRatingsApi(appContext)
+    }
+
+    private val issuesApi by lazy {
+        ApiClient.provideIssuesApi(appContext)
     }
 
     val productsApi: ProductsApi by lazy {
@@ -67,4 +77,14 @@ class AppContainer(
     val orderDraftRepository: OrderDraftRepository by lazy {
         OrderDraftRepository()
     }
+
+    val ratingRepository: RatingRepository by lazy {
+        RatingRepository(ratingsApi)
+    }
+
+    val issueRepository: IssueRepository by lazy {
+        IssueRepository(issuesApi)
+    }
+
+
 }

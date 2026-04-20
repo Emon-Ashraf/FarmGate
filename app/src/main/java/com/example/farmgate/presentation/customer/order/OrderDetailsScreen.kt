@@ -29,7 +29,9 @@ fun OrderDetailsScreen(
     onCancelNoteChanged: (String) -> Unit,
     onPaymentReferenceChanged: (String) -> Unit,
     onCancelOrderClick: () -> Unit,
-    onConfirmFeeClick: () -> Unit
+    onConfirmFeeClick: () -> Unit,
+    onRateFarmerClick: (Long) -> Unit,
+    onReportIssueClick: (Long) -> Unit
 ) {
     when {
         uiState.isLoading -> {
@@ -282,6 +284,38 @@ fun OrderDetailsScreen(
                                 Text(
                                     text = if (uiState.isConfirmingFee) "Confirming..." else "Confirm Service Fee"
                                 )
+                            }
+                        }
+                    }
+                }
+
+                if (order.status == OrderStatus.Completed) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "After Pickup",
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text("You can now rate the farmer or report an issue for this completed order.")
+
+                            Button(
+                                onClick = { onRateFarmerClick(order.id) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Rate Farmer")
+                            }
+
+                            Button(
+                                onClick = { onReportIssueClick(order.id) },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Report Issue")
                             }
                         }
                     }

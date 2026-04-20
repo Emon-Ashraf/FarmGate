@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +26,8 @@ import com.example.farmgate.presentation.auth.splash.SplashScreen
 import com.example.farmgate.presentation.auth.splash.SplashViewModel
 import com.example.farmgate.presentation.customer.home.CustomerHomeScreen
 import com.example.farmgate.presentation.customer.home.CustomerHomeViewModel
+import com.example.farmgate.presentation.customer.issue.CreateIssueScreen
+import com.example.farmgate.presentation.customer.issue.CreateIssueViewModel
 import com.example.farmgate.presentation.customer.order.CustomerOrdersScreen
 import com.example.farmgate.presentation.customer.order.CustomerOrdersViewModel
 import com.example.farmgate.presentation.customer.order.OrderDetailsScreen
@@ -33,6 +36,8 @@ import com.example.farmgate.presentation.customer.order.ReviewOrderScreen
 import com.example.farmgate.presentation.customer.order.ReviewOrderViewModel
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsScreen
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsViewModel
+import com.example.farmgate.presentation.customer.rating.CreateRatingScreen
+import com.example.farmgate.presentation.customer.rating.CreateRatingViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
@@ -264,7 +269,79 @@ fun AppNavGraph(
                     onCancelNoteChanged = viewModel::onCancelNoteChanged,
                     onPaymentReferenceChanged = viewModel::onPaymentReferenceChanged,
                     onCancelOrderClick = viewModel::cancelOrder,
-                    onConfirmFeeClick = viewModel::confirmServiceFee
+                    onConfirmFeeClick = viewModel::confirmServiceFee,
+                    onRateFarmerClick = { selectedOrderId ->
+                        navController.navigate(Routes.customerCreateRating(selectedOrderId))
+                    },
+                    onReportIssueClick = { selectedOrderId ->
+                        navController.navigate(Routes.customerCreateIssue(selectedOrderId))
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.CUSTOMER_CREATE_RATING,
+                arguments = listOf(
+                    navArgument(Routes.ORDER_ID_ARG) {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong(Routes.ORDER_ID_ARG) ?: 0L
+
+                val viewModel: CreateRatingViewModel = viewModel(
+                    factory = CreateRatingViewModel.Factory(
+                        ratingRepository = appContainer.ratingRepository,
+                        orderId = orderId
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(Unit) {
+                    viewModel.navigation.collect {
+                        navController.popBackStack()
+                    }
+                }
+
+                CreateRatingScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onScoreChanged = viewModel::onScoreChanged,
+                    onCommentChanged = viewModel::onCommentChanged,
+                    onSubmitClick = viewModel::submit
+                )
+            }
+
+            composable(
+                route = Routes.CUSTOMER_CREATE_ISSUE,
+                arguments = listOf(
+                    navArgument(Routes.ORDER_ID_ARG) {
+                        type = NavType.LongType
+                    }
+                )
+            ) { backStackEntry ->
+                val orderId = backStackEntry.arguments?.getLong(Routes.ORDER_ID_ARG) ?: 0L
+
+                val viewModel: CreateIssueViewModel = viewModel(
+                    factory = CreateIssueViewModel.Factory(
+                        issueRepository = appContainer.issueRepository,
+                        orderId = orderId
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(Unit) {
+                    viewModel.navigation.collect {
+                        navController.popBackStack()
+                    }
+                }
+
+                CreateIssueScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onTitleChanged = viewModel::onTitleChanged,
+                    onDescriptionChanged = viewModel::onDescriptionChanged,
+                    onSubmitClick = viewModel::submit
                 )
             }
 
