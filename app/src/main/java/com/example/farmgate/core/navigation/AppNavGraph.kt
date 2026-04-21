@@ -18,6 +18,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import androidx.navigation.navArgument
 import com.example.farmgate.FarmGateApplication
+import com.example.farmgate.data.model.IssueStatus
+import com.example.farmgate.presentation.admin.issue.AdminIssueDetailsScreen
+import com.example.farmgate.presentation.admin.issue.AdminIssueDetailsViewModel
+import com.example.farmgate.presentation.admin.issue.AdminIssuesScreen
+import com.example.farmgate.presentation.admin.issue.AdminIssuesViewModel
 import com.example.farmgate.presentation.auth.login.LoginScreen
 import com.example.farmgate.presentation.auth.login.LoginViewModel
 import com.example.farmgate.presentation.auth.register.RegisterScreen
@@ -420,7 +425,79 @@ fun AppNavGraph(
             route = Graph.ADMIN
         ) {
             composable(Routes.ADMIN_ISSUES) {
-                PlaceholderScreen(title = "Admin Issues")
+                val viewModel: AdminIssuesViewModel = viewModel(
+                    factory = AdminIssuesViewModel.Factory(
+                        adminRepository = appContainer.adminRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                AdminIssuesScreen(
+                    uiState = uiState,
+                    onRetry = viewModel::loadIssues,
+                    onIssueClick = { issue ->
+                        navController.navigate(
+                            Routes.adminIssueDetails(
+                                issueId = issue.id,
+                                orderId = issue.orderId,
+                                title = issue.title,
+                                status = issue.status.name,
+                                customerName = issue.customerName,
+                                farmerName = issue.farmerName,
+                                createdAt = issue.createdAt
+                            )
+                        )
+                    }
+                )
+            }
+
+            composable(
+                route = Routes.ADMIN_ISSUE_DETAILS,
+                arguments = listOf(
+                    navArgument(Routes.ISSUE_ID_ARG) { type = NavType.LongType },
+                    navArgument(Routes.ORDER_ID_ARG) { type = NavType.LongType },
+                    navArgument(Routes.TITLE_ARG) { type = NavType.StringType },
+                    navArgument(Routes.ADMIN_STATUS_ARG) { type = NavType.StringType },
+                    navArgument(Routes.CUSTOMER_NAME_ARG) { type = NavType.StringType },
+                    navArgument(Routes.FARMER_NAME_ARG) { type = NavType.StringType },
+                    navArgument(Routes.CREATED_AT_ARG) { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val issueId = backStackEntry.arguments?.getLong(Routes.ISSUE_ID_ARG) ?: 0L
+                val orderId = backStackEntry.arguments?.getLong(Routes.ORDER_ID_ARG) ?: 0L
+                val title = backStackEntry.arguments?.getString(Routes.TITLE_ARG).orEmpty()
+                val statusString = backStackEntry.arguments?.getString(Routes.ADMIN_STATUS_ARG).orEmpty()
+                val customerName = backStackEntry.arguments?.getString(Routes.CUSTOMER_NAME_ARG).orEmpty()
+                val farmerName = backStackEntry.arguments?.getString(Routes.FARMER_NAME_ARG).orEmpty()
+                val createdAt = backStackEntry.arguments?.getString(Routes.CREATED_AT_ARG).orEmpty()
+
+                val viewModel: AdminIssueDetailsViewModel = viewModel(
+                    factory = AdminIssueDetailsViewModel.Factory(
+                        adminRepository = appContainer.adminRepository,
+                        issueId = issueId,
+                        orderId = orderId,
+                        title = title,
+                        status = IssueStatus.valueOf(statusString),
+                        customerName = customerName,
+                        farmerName = farmerName,
+                        createdAt = createdAt
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                LaunchedEffect(Unit) {
+                    viewModel.navigation.collect {
+                        navController.popBackStack()
+                    }
+                }
+
+                AdminIssueDetailsScreen(
+                    uiState = uiState,
+                    onBackClick = { navController.popBackStack() },
+                    onStatusChanged = viewModel::onStatusChanged,
+                    onAdminNoteChanged = viewModel::onAdminNoteChanged,
+                    onSubmitClick = viewModel::submit
+                )
             }
         }
     }

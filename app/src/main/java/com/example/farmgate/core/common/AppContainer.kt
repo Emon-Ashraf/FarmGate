@@ -5,6 +5,7 @@ import com.example.farmgate.core.datastore.SessionManager
 import com.example.farmgate.core.network.ApiClient
 import com.example.farmgate.data.remote.api.OrdersApi
 import com.example.farmgate.data.remote.api.ProductsApi
+import com.example.farmgate.data.repository.AdminRepository
 import com.example.farmgate.data.repository.AuthRepository
 import com.example.farmgate.data.repository.CityRepository
 import com.example.farmgate.data.repository.IssueRepository
@@ -41,6 +42,10 @@ class AppContainer(
 
     private val issuesApi by lazy {
         ApiClient.provideIssuesApi(appContext)
+    }
+
+    private val adminApi by lazy {
+        ApiClient.provideAdminApi(appContext)
     }
 
     val productsApi: ProductsApi by lazy {
@@ -84,6 +89,10 @@ class AppContainer(
 
     val issueRepository: IssueRepository by lazy {
         IssueRepository(issuesApi)
+    }
+
+    val adminRepository: AdminRepository by lazy {
+        AdminRepository(adminApi)
     }
 
 

@@ -3,6 +3,7 @@ package com.example.farmgate.core.network
 import android.content.Context
 import com.example.farmgate.BuildConfig
 import com.example.farmgate.core.datastore.SessionManager
+import com.example.farmgate.data.remote.api.AdminApi
 import com.example.farmgate.data.remote.api.AuthApi
 import com.example.farmgate.data.remote.api.CitiesApi
 import com.example.farmgate.data.remote.api.IssuesApi
@@ -87,6 +88,11 @@ object ApiClient {
     fun provideIssuesApi(context: Context): IssuesApi {
         val sessionManager = SessionManager(context.applicationContext)
         return provideRetrofit(sessionManager).create(IssuesApi::class.java)
+    }
+
+    fun provideAdminApi(context: Context): AdminApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(AdminApi::class.java)
     }
 
 }
