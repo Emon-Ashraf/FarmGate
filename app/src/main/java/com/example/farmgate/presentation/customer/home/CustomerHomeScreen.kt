@@ -9,18 +9,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.farmgate.presentation.components.ProductCard
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerHomeScreen(
     uiState: CustomerHomeUiState,
@@ -30,6 +38,8 @@ fun CustomerHomeScreen(
     onReviewOrderClick: () -> Unit,
     onMyOrdersClick: () -> Unit
 ) {
+    var cityDropdownExpanded by remember { mutableStateOf(false) }
+
     if (uiState.isLoading) {
         Column(
             modifier = Modifier
@@ -127,19 +137,42 @@ fun CustomerHomeScreen(
             )
         }
 
-        items(uiState.cities) { city ->
-            val selected = city.id == uiState.selectedCityId
+        item {
+            ExposedDropdownMenuBox(
+                expanded = cityDropdownExpanded,
+                onExpandedChange = { cityDropdownExpanded = !cityDropdownExpanded }
+            ) {
+                OutlinedTextField(
+                    value = uiState.selectedCityName ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("City") },
+                    placeholder = { Text("Select a city") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(
+                            expanded = cityDropdownExpanded
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
 
-            AssistChip(
-                onClick = { onCitySelected(city.id) },
-                label = {
-                    Text(
-                        text = if (selected) "${city.name} ✓" else city.name
-                    )
-                },
-                colors = AssistChipDefaults.assistChipColors(),
-                modifier = Modifier.fillMaxWidth()
-            )
+                ExposedDropdownMenu(
+                    expanded = cityDropdownExpanded,
+                    onDismissRequest = { cityDropdownExpanded = false }
+                ) {
+                    uiState.cities.forEach { city ->
+                        DropdownMenuItem(
+                            text = { Text(city.name) },
+                            onClick = {
+                                cityDropdownExpanded = false
+                                onCitySelected(city.id)
+                            }
+                        )
+                    }
+                }
+            }
         }
 
         item {

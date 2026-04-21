@@ -56,6 +56,8 @@ object Routes {
     }
 
     const val ADMIN_ISSUES = "admin_issues"
+    const val ADMIN_USER_MODERATION = "admin_user_moderation"
+    const val ADMIN_PRODUCT_MODERATION = "admin_product_moderation"
 
     const val ISSUE_ID_ARG = "issueId"
     const val TITLE_ARG = "title"

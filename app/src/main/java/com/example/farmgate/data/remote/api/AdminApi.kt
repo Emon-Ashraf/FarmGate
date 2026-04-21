@@ -1,6 +1,8 @@
 package com.example.farmgate.data.remote.api
 
 import com.example.farmgate.data.remote.dto.admin.AdminIssueListItemDto
+import com.example.farmgate.data.remote.dto.admin.AdminModerateProductDto
+import com.example.farmgate.data.remote.dto.admin.AdminModerateUserDto
 import com.example.farmgate.data.remote.dto.admin.AdminResolveIssueDto
 import com.example.farmgate.data.remote.dto.issue.IssueReportDto
 import retrofit2.Response
@@ -19,4 +21,16 @@ interface AdminApi {
         @Path("id") issueId: Long,
         @Body request: AdminResolveIssueDto
     ): Response<IssueReportDto>
+
+    @PATCH("api/admin/users/{id}/deactivate")
+    suspend fun moderateUser(
+        @Path("id") userId: Long,
+        @Body request: AdminModerateUserDto
+    ): Response<Unit>
+
+    @PATCH("api/admin/products/{id}/deactivate")
+    suspend fun moderateProduct(
+        @Path("id") productId: Long,
+        @Body request: AdminModerateProductDto
+    ): Response<Unit>
 }

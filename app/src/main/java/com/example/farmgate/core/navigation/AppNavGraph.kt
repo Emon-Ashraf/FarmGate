@@ -23,6 +23,10 @@ import com.example.farmgate.presentation.admin.issue.AdminIssueDetailsScreen
 import com.example.farmgate.presentation.admin.issue.AdminIssueDetailsViewModel
 import com.example.farmgate.presentation.admin.issue.AdminIssuesScreen
 import com.example.farmgate.presentation.admin.issue.AdminIssuesViewModel
+import com.example.farmgate.presentation.admin.product.AdminProductModerationScreen
+import com.example.farmgate.presentation.admin.product.AdminProductModerationViewModel
+import com.example.farmgate.presentation.admin.user.AdminUserModerationScreen
+import com.example.farmgate.presentation.admin.user.AdminUserModerationViewModel
 import com.example.farmgate.presentation.auth.login.LoginScreen
 import com.example.farmgate.presentation.auth.login.LoginViewModel
 import com.example.farmgate.presentation.auth.register.RegisterScreen
@@ -497,6 +501,36 @@ fun AppNavGraph(
                     onStatusChanged = viewModel::onStatusChanged,
                     onAdminNoteChanged = viewModel::onAdminNoteChanged,
                     onSubmitClick = viewModel::submit
+                )
+            }
+
+            composable(Routes.ADMIN_USER_MODERATION) {
+                val viewModel: AdminUserModerationViewModel = viewModel(
+                    factory = AdminUserModerationViewModel.Factory(
+                        adminRepository = appContainer.adminRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                AdminUserModerationScreen(
+                    uiState = uiState,
+                    onDeactivateUser = viewModel::deactivateUser,
+                    onActivateUser = viewModel::activateUser
+                )
+            }
+
+            composable(Routes.ADMIN_PRODUCT_MODERATION) {
+                val viewModel: AdminProductModerationViewModel = viewModel(
+                    factory = AdminProductModerationViewModel.Factory(
+                        adminRepository = appContainer.adminRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                AdminProductModerationScreen(
+                    uiState = uiState,
+                    onDeactivateProduct = viewModel::deactivateProduct,
+                    onActivateProduct = viewModel::activateProduct
                 )
             }
         }
