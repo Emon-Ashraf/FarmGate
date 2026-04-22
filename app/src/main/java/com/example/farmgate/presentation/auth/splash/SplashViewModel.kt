@@ -38,7 +38,7 @@ class SplashViewModel(
             _uiState.value = SplashUiState(isLoading = false)
 
             if (!session.isLoggedIn) {
-                _navigation.emit(Routes.LOGIN)
+                _navigation.emit(Routes.WELCOME)
                 return@launch
             }
 

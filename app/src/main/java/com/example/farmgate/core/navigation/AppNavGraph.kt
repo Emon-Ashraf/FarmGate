@@ -33,6 +33,7 @@ import com.example.farmgate.presentation.auth.register.RegisterScreen
 import com.example.farmgate.presentation.auth.register.RegisterViewModel
 import com.example.farmgate.presentation.auth.splash.SplashScreen
 import com.example.farmgate.presentation.auth.splash.SplashViewModel
+import com.example.farmgate.presentation.auth.welcome.WelcomeScreen
 import com.example.farmgate.presentation.customer.home.CustomerHomeScreen
 import com.example.farmgate.presentation.customer.home.CustomerHomeViewModel
 import com.example.farmgate.presentation.customer.issue.CreateIssueScreen
@@ -51,6 +52,7 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
+
 
 @Composable
 fun AppNavGraph(
@@ -85,6 +87,17 @@ fun AppNavGraph(
                                 popUpTo(Graph.ROOT) { inclusive = true }
                             }
                         }
+                    }
+                )
+            }
+
+            composable(Routes.WELCOME) {
+                WelcomeScreen(
+                    onLoginClick = {
+                        navController.navigate(Routes.LOGIN)
+                    },
+                    onCreateAccountClick = {
+                        navController.navigate(Routes.REGISTER)
                     }
                 )
             }
@@ -129,6 +142,8 @@ fun AppNavGraph(
                     onPhoneNumberChanged = viewModel::onPhoneNumberChanged,
                     onEmailChanged = viewModel::onEmailChanged,
                     onPasswordChanged = viewModel::onPasswordChanged,
+                    onRoleChanged = viewModel::onRoleChanged,
+                    onDisplayNameChanged = viewModel::onDisplayNameChanged,
                     onRegisterClick = viewModel::register,
                     onBackToLoginClick = {
                         navController.popBackStack()
@@ -141,6 +156,7 @@ fun AppNavGraph(
                         }
                     }
                 )
+
             }
         }
 

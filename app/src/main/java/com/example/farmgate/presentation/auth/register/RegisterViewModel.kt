@@ -40,6 +40,18 @@ class RegisterViewModel(
         _uiState.value = _uiState.value.copy(password = value, errorMessage = null)
     }
 
+    fun onRoleChanged(value: Int) {
+        _uiState.value = _uiState.value.copy(
+            role = value,
+            errorMessage = null,
+            displayName = if (value == 2) _uiState.value.displayName else ""
+        )
+    }
+
+    fun onDisplayNameChanged(value: String) {
+        _uiState.value = _uiState.value.copy(displayName = value, errorMessage = null)
+    }
+
     fun register() {
         val state = _uiState.value
 
