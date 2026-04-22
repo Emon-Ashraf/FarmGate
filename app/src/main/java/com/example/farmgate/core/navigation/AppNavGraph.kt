@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navigation
 import androidx.navigation.navArgument
 import com.example.farmgate.FarmGateApplication
@@ -38,6 +39,7 @@ import com.example.farmgate.presentation.customer.home.CustomerHomeScreen
 import com.example.farmgate.presentation.customer.home.CustomerHomeViewModel
 import com.example.farmgate.presentation.customer.issue.CreateIssueScreen
 import com.example.farmgate.presentation.customer.issue.CreateIssueViewModel
+import com.example.farmgate.presentation.customer.navigation.CustomerMainScreen
 import com.example.farmgate.presentation.customer.order.CustomerOrdersScreen
 import com.example.farmgate.presentation.customer.order.CustomerOrdersViewModel
 import com.example.farmgate.presentation.customer.order.OrderDetailsScreen
@@ -52,7 +54,6 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
-
 
 @Composable
 fun AppNavGraph(
@@ -156,39 +157,71 @@ fun AppNavGraph(
                         }
                     }
                 )
-
             }
         }
 
         navigation(
-            startDestination = Routes.CUSTOMER_HOME,
+            startDestination = Routes.CUSTOMER_MAIN,
             route = Graph.CUSTOMER
         ) {
-            composable(Routes.CUSTOMER_HOME) {
-                val viewModel: CustomerHomeViewModel = viewModel(
-                    factory = CustomerHomeViewModel.Factory(
-                        profileRepository = appContainer.profileRepository,
-                        cityRepository = appContainer.cityRepository,
-                        productRepository = appContainer.productRepository,
-                        orderDraftRepository = appContainer.orderDraftRepository
-                    )
-                )
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            composable(Routes.CUSTOMER_MAIN) {
+                val customerNavController = rememberNavController()
 
-                CustomerHomeScreen(
-                    uiState = uiState,
-                    onCitySelected = viewModel::onCitySelected,
-                    onRetry = viewModel::onRetry,
-                    onProductClick = { productId ->
-                        navController.navigate(Routes.customerProductDetails(productId))
-                    },
-                    onReviewOrderClick = {
-                        navController.navigate(Routes.CUSTOMER_REVIEW_ORDER)
-                    },
-                    onMyOrdersClick = {
-                        navController.navigate(Routes.CUSTOMER_ORDERS)
+                CustomerMainScreen(navController = customerNavController) { innerModifier ->
+                    NavHost(
+                        navController = customerNavController,
+                        startDestination = Routes.CUSTOMER_HOME,
+                        modifier = innerModifier
+                    ) {
+                        composable(Routes.CUSTOMER_HOME) {
+                            val viewModel: CustomerHomeViewModel = viewModel(
+                                factory = CustomerHomeViewModel.Factory(
+                                    profileRepository = appContainer.profileRepository,
+                                    cityRepository = appContainer.cityRepository,
+                                    productRepository = appContainer.productRepository,
+                                    orderDraftRepository = appContainer.orderDraftRepository
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            CustomerHomeScreen(
+                                uiState = uiState,
+                                onCitySelected = viewModel::onCitySelected,
+                                onSearchQueryChanged = viewModel::onSearchQueryChanged,
+                                onRetry = viewModel::onRetry,
+                                onProductClick = { productId ->
+                                    navController.navigate(Routes.customerProductDetails(productId))
+                                },
+                                onReviewOrderClick = {
+                                    navController.navigate(Routes.CUSTOMER_REVIEW_ORDER)
+                                }
+                            )
+
+                        }
+
+                        composable(Routes.CUSTOMER_ORDERS) {
+                            val viewModel: CustomerOrdersViewModel = viewModel(
+                                factory = CustomerOrdersViewModel.Factory(
+                                    orderRepository = appContainer.orderRepository
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            CustomerOrdersScreen(
+                                uiState = uiState,
+                                onBackClick = {},
+                                onRetry = viewModel::loadOrders,
+                                onOrderClick = { orderId ->
+                                    navController.navigate(Routes.customerOrderDetails(orderId))
+                                }
+                            )
+                        }
+
+                        composable(Routes.CUSTOMER_PROFILE) {
+                            PlaceholderScreen(title = "Customer Profile")
+                        }
                     }
-                )
+                }
             }
 
             composable(
@@ -247,24 +280,6 @@ fun AppNavGraph(
                                 popUpTo(Routes.CUSTOMER_REVIEW_ORDER) { inclusive = true }
                             }
                         }
-                    }
-                )
-            }
-
-            composable(Routes.CUSTOMER_ORDERS) {
-                val viewModel: CustomerOrdersViewModel = viewModel(
-                    factory = CustomerOrdersViewModel.Factory(
-                        orderRepository = appContainer.orderRepository
-                    )
-                )
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-                CustomerOrdersScreen(
-                    uiState = uiState,
-                    onBackClick = { navController.popBackStack() },
-                    onRetry = viewModel::loadOrders,
-                    onOrderClick = { orderId ->
-                        navController.navigate(Routes.customerOrderDetails(orderId))
                     }
                 )
             }
@@ -368,10 +383,6 @@ fun AppNavGraph(
                     onDescriptionChanged = viewModel::onDescriptionChanged,
                     onSubmitClick = viewModel::submit
                 )
-            }
-
-            composable(Routes.CUSTOMER_PROFILE) {
-                PlaceholderScreen(title = "Customer Profile")
             }
         }
 

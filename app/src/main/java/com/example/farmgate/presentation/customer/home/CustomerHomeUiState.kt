@@ -10,6 +10,7 @@ data class CustomerHomeUiState(
     val cities: List<City> = emptyList(),
     val selectedCityId: Long? = null,
     val selectedCityName: String? = null,
+    val searchQuery: String = "",
     val products: List<ProductSummary> = emptyList(),
     val screenErrorMessage: String? = null,
     val productsErrorMessage: String? = null,

@@ -8,6 +8,8 @@ import com.example.farmgate.data.repository.CityRepository
 import com.example.farmgate.data.repository.OrderDraftRepository
 import com.example.farmgate.data.repository.ProductRepository
 import com.example.farmgate.data.repository.ProfileRepository
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,6 +24,8 @@ class CustomerHomeViewModel(
 
     private val _uiState = MutableStateFlow(CustomerHomeUiState(isLoading = true))
     val uiState: StateFlow<CustomerHomeUiState> = _uiState.asStateFlow()
+
+    private var searchJob: Job? = null
 
     init {
         loadHomeData()
@@ -109,14 +113,36 @@ class CustomerHomeViewModel(
         loadProductsForCity(cityId)
     }
 
+    fun onSearchQueryChanged(value: String) {
+        _uiState.value = _uiState.value.copy(
+            searchQuery = value,
+            productsErrorMessage = null
+        )
+
+        val cityId = _uiState.value.selectedCityId ?: return
+
+        searchJob?.cancel()
+        searchJob = viewModelScope.launch {
+            delay(350)
+            loadProductsForCity(cityId)
+        }
+    }
+
     private fun loadProductsForCity(cityId: Long) {
         viewModelScope.launch {
+            val query = _uiState.value.searchQuery.trim().ifBlank { null }
+
             _uiState.value = _uiState.value.copy(
                 isProductsLoading = true,
                 productsErrorMessage = null
             )
 
-            when (val result = productRepository.searchProducts(cityId = cityId)) {
+            when (
+                val result = productRepository.searchProducts(
+                    cityId = cityId,
+                    query = query
+                )
+            ) {
                 is Resource.Success -> {
                     _uiState.value = _uiState.value.copy(
                         isProductsLoading = false,

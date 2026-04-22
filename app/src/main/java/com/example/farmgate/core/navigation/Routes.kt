@@ -17,6 +17,9 @@ object Routes {
     const val LOGIN = "login"
     const val REGISTER = "register"
 
+
+    const val CUSTOMER_MAIN = "customer_main"
+
     const val CUSTOMER_HOME = "customer_home"
     const val CUSTOMER_ORDERS = "customer_orders"
     const val CUSTOMER_PROFILE = "customer_profile"
