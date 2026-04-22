@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.farmgate"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.example.farmgate"
@@ -90,5 +88,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     // Gson dependency
     implementation(libs.gson.core)
+    // Coil dependency
+    implementation(libs.coil.compose)
 
 }
