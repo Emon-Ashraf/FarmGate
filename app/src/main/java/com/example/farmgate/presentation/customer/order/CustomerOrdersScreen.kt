@@ -237,7 +237,7 @@ private fun OrderCard(
     order: Order,
     onClick: () -> Unit
 ) {
-    val statusUi = order.status.toUi()
+    val statusUi = order.status.toListUi()
     val locationText = listOfNotNull(order.pickupArea, order.pickupCity)
         .joinToString(", ")
         .ifBlank { "Pickup details available" }
@@ -398,40 +398,40 @@ private fun StatusChip(
     }
 }
 
-private data class OrderStatusUi(
+private data class OrdersListStatusUi(
     val label: String,
     val background: Color,
     val content: Color
 )
 
-private fun OrderStatus.toUi(): OrderStatusUi {
+private fun OrderStatus.toListUi(): OrdersListStatusUi {
     return when (this) {
-        OrderStatus.Pending -> OrderStatusUi(
+        OrderStatus.Pending -> OrdersListStatusUi(
             label = "PENDING",
             background = Color(0x1AF59E0B),
             content = Color(0xFFF59E0B)
         )
-        OrderStatus.AwaitingFee -> OrderStatusUi(
+        OrderStatus.AwaitingFee -> OrdersListStatusUi(
             label = "AWAITING FEE",
             background = Color(0x1AF97316),
             content = Color(0xFFF97316)
         )
-        OrderStatus.Confirmed -> OrderStatusUi(
+        OrderStatus.Confirmed -> OrdersListStatusUi(
             label = "READY FOR PICKUP",
             background = Color(0x1A18D66B),
             content = Color(0xFF18D66B)
         )
-        OrderStatus.Completed -> OrderStatusUi(
+        OrderStatus.Completed -> OrdersListStatusUi(
             label = "COMPLETED",
             background = Color(0x1A3B82F6),
             content = Color(0xFF3B82F6)
         )
-        OrderStatus.Cancelled -> OrderStatusUi(
+        OrderStatus.Cancelled -> OrdersListStatusUi(
             label = "CANCELLED",
             background = Color(0x1AE11D48),
             content = Color(0xFFE11D48)
         )
-        OrderStatus.Rejected -> OrderStatusUi(
+        OrderStatus.Rejected -> OrdersListStatusUi(
             label = "REJECTED",
             background = Color(0x1AE11D48),
             content = Color(0xFFE11D48)

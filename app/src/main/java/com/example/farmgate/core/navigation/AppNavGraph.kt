@@ -48,6 +48,8 @@ import com.example.farmgate.presentation.customer.order.ReviewOrderScreen
 import com.example.farmgate.presentation.customer.order.ReviewOrderViewModel
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsScreen
 import com.example.farmgate.presentation.customer.productdetails.ProductDetailsViewModel
+import com.example.farmgate.presentation.customer.profile.CustomerProfileScreen
+import com.example.farmgate.presentation.customer.profile.CustomerProfileViewModel
 import com.example.farmgate.presentation.customer.rating.CreateRatingScreen
 import com.example.farmgate.presentation.customer.rating.CreateRatingViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
@@ -218,8 +220,29 @@ fun AppNavGraph(
                         }
 
                         composable(Routes.CUSTOMER_PROFILE) {
-                            PlaceholderScreen(title = "Customer Profile")
+                            val viewModel: CustomerProfileViewModel = viewModel(
+                                factory = CustomerProfileViewModel.Factory(
+                                    profileRepository = appContainer.profileRepository,
+                                    authRepository = appContainer.authRepository
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            CustomerProfileScreen(
+                                uiState = uiState,
+                                onRetry = viewModel::loadProfile,
+                                onLogoutClick = viewModel::logout,
+                                onNavigation = {
+                                    viewModel.navigation.collect { route ->
+                                        navController.navigate(route) {
+                                            popUpTo(Graph.ROOT) { inclusive = true }
+                                        }
+                                    }
+                                }
+                            )
                         }
+
+
                     }
                 }
             }
