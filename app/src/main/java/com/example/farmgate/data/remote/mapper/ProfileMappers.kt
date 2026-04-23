@@ -10,6 +10,9 @@ fun ProfileResponseDto.toModel(): UserProfile {
         phoneNumber = phoneNumber,
         email = email,
         primaryCityId = primaryCityId,
-        primaryCityName = primaryCityName
+        primaryCityName = primaryCityName,
+        displayName = displayName,
+        description = description,
+        isProfileCompleted = isProfileCompleted ?: false
     )
 }

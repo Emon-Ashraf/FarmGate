@@ -56,6 +56,8 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
+import com.example.farmgate.presentation.farmer.profile.FarmerProfileScreen
+import com.example.farmgate.presentation.farmer.profile.FarmerProfileViewModel
 
 @Composable
 fun AppNavGraph(
@@ -470,8 +472,34 @@ fun AppNavGraph(
             }
 
             composable(Routes.FARMER_PROFILE) {
-                PlaceholderScreen(title = "Farmer Profile")
+                val viewModel: FarmerProfileViewModel = viewModel(
+                    factory = FarmerProfileViewModel.Factory(
+                        profileRepository = appContainer.profileRepository,
+                        cityRepository = appContainer.cityRepository,
+                        authRepository = appContainer.authRepository
+                    )
+                )
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                FarmerProfileScreen(
+                    uiState = uiState,
+                    onDisplayNameChanged = viewModel::onDisplayNameChanged,
+                    onDescriptionChanged = viewModel::onDescriptionChanged,
+                    onCitySelected = viewModel::onCitySelected,
+                    onSaveClick = viewModel::saveProfile,
+                    onRetry = viewModel::loadData,
+                    onLogoutClick = viewModel::logout,
+                    onNavigation = {
+                        viewModel.navigation.collect { route ->
+                            navController.navigate(route) {
+                                popUpTo(Graph.ROOT) { inclusive = true }
+                            }
+                        }
+                    }
+                )
             }
+
+
         }
 
         navigation(
