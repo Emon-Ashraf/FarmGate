@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.farmgate.core.common.Resource
 import com.example.farmgate.core.navigation.Routes
+import com.example.farmgate.data.model.RoleType
 import com.example.farmgate.data.repository.AuthRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -91,7 +92,14 @@ class RegisterViewModel(
             ) {
                 is Resource.Success -> {
                     _uiState.value = _uiState.value.copy(isLoading = false)
-                    _navigation.emit(Routes.graphForRole(result.data.role))
+
+                    _navigation.emit(
+                        when (result.data.role) {
+                            RoleType.Customer -> Routes.CUSTOMER_MAIN
+                            RoleType.Farmer -> Routes.FARMER_MAIN
+                            RoleType.Admin -> Routes.ADMIN_ISSUES
+                        }
+                    )
                 }
 
                 is Resource.Error -> {

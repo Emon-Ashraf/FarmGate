@@ -19,6 +19,7 @@ object Routes {
 
 
     const val CUSTOMER_MAIN = "customer_main"
+    const val FARMER_MAIN = "farmer_main"
 
     const val CUSTOMER_HOME = "customer_home"
     const val CUSTOMER_ORDERS = "customer_orders"

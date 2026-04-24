@@ -1,0 +1,78 @@
+package com.example.farmgate.presentation.farmer.navigation
+
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import com.example.farmgate.R
+import com.example.farmgate.core.navigation.Routes
+
+data class FarmerBottomNavItem(
+    val route: String,
+    val iconRes: Int,
+    val contentDescription: String
+)
+
+@Composable
+fun FarmerBottomNavBar(
+    currentRoute: String?,
+    onItemClick: (String) -> Unit
+) {
+    val items = listOf(
+        FarmerBottomNavItem(
+            route = Routes.FARMER_DASHBOARD,
+            iconRes = R.drawable.ic_home,
+            contentDescription = "Home"
+        ),
+        FarmerBottomNavItem(
+            route = Routes.FARMER_ORDERS,
+            iconRes = R.drawable.ic_orders,
+            contentDescription = "Orders"
+        ),
+        FarmerBottomNavItem(
+            route = Routes.FARMER_PRODUCTS,
+            iconRes = R.drawable.ic_products,
+            contentDescription = "Products"
+        ),
+        FarmerBottomNavItem(
+            route = Routes.FARMER_PROFILE,
+            iconRes = R.drawable.ic_profile,
+            contentDescription = "Profile"
+        )
+    )
+
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surface,
+        tonalElevation = 0.dp
+    ) {
+        items.forEach { item ->
+            val selected = currentRoute == item.route
+
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onItemClick(item.route) },
+                icon = {
+                    Icon(
+                        painter = painterResource(id = item.iconRes),
+                        contentDescription = item.contentDescription,
+                        modifier = Modifier.size(24.dp)
+                    )
+                },
+                label = null,
+                alwaysShowLabel = false,
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = Color(0xFF18D66B),
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    indicatorColor = Color(0x1A18D66B)
+                )
+            )
+        }
+    }
+}

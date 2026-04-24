@@ -43,9 +43,11 @@ class SplashViewModel(
             }
 
             _navigation.emit(
-                Routes.graphForRole(
-                    RoleType.fromString(session.role)
-                )
+                when (RoleType.fromString(session.role)) {
+                    RoleType.Customer -> Routes.CUSTOMER_MAIN
+                    RoleType.Farmer -> Routes.FARMER_MAIN
+                    RoleType.Admin -> Routes.ADMIN_ISSUES
+                }
             )
         }
     }
