@@ -61,6 +61,10 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
+import com.example.farmgate.presentation.farmer.product.FarmerProductFormScreen
+import com.example.farmgate.presentation.farmer.product.FarmerProductFormViewModel
+import com.example.farmgate.presentation.farmer.product.FarmerProductsScreen
+import com.example.farmgate.presentation.farmer.product.FarmerProductsViewModel
 import com.example.farmgate.presentation.farmer.profile.FarmerProfileScreen
 import com.example.farmgate.presentation.farmer.profile.FarmerProfileViewModel
 
@@ -249,7 +253,6 @@ fun AppNavGraph(
             route = Graph.FARMER
         ) {
             composable(Routes.FARMER_MAIN) {
-                println("DEBUG: FARMER_MAIN COMPOSED")
 
                 val farmerNavController = rememberNavController()
                 val farmerBackStackEntry by farmerNavController.currentBackStackEntryAsState()
@@ -277,7 +280,6 @@ fun AppNavGraph(
                         modifier = Modifier.padding(innerPadding)
                     ) {
                         composable(Routes.FARMER_DASHBOARD) {
-                            println("DEBUG: FARMER_DASHBOARD COMPOSED")
 
                             val ordersViewModel: FarmerOrdersViewModel = viewModel(
                                 factory = FarmerOrdersViewModel.Factory(
@@ -317,7 +319,6 @@ fun AppNavGraph(
                         }
 
                         composable(Routes.FARMER_ORDERS) {
-                            println("DEBUG: FARMER_ORDERS COMPOSED")
 
                             val viewModel: FarmerOrdersViewModel = viewModel(
                                 factory = FarmerOrdersViewModel.Factory(
@@ -336,8 +337,26 @@ fun AppNavGraph(
                             )
                         }
 
+
+
                         composable(Routes.FARMER_PRODUCTS) {
-                            PlaceholderScreen(title = "Farmer Products")
+                            val viewModel: FarmerProductsViewModel = viewModel(
+                                factory = FarmerProductsViewModel.Factory(
+                                    productRepository = appContainer.productRepository
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            FarmerProductsScreen(
+                                uiState = uiState,
+                                onRetry = viewModel::loadProducts,
+                                onProductClick = { productId ->
+                                    farmerNavController.navigate(Routes.farmerProductEdit(productId))
+                                },
+                                onAddProductClick = {
+                                    farmerNavController.navigate(Routes.FARMER_PRODUCT_CREATE)
+                                }
+                            )
                         }
 
                         composable(Routes.FARMER_PROFILE) {
@@ -367,6 +386,78 @@ fun AppNavGraph(
                                 }
                             )
                         }
+
+                        composable(Routes.FARMER_PRODUCT_CREATE) {
+                            val viewModel: FarmerProductFormViewModel = viewModel(
+                                factory = FarmerProductFormViewModel.Factory(
+                                    productRepository = appContainer.productRepository,
+                                    productId = null
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.navigation.collect {
+                                    navController.popBackStack()
+                                }
+                            }
+
+                            FarmerProductFormScreen(
+                                uiState = uiState,
+                                onBackClick = { navController.popBackStack() },
+                                onPickupLocationIdChanged = viewModel::onPickupLocationIdChanged,
+                                onNameChanged = viewModel::onNameChanged,
+                                onDescriptionChanged = viewModel::onDescriptionChanged,
+                                onCategoryChanged = viewModel::onCategoryChanged,
+                                onUnitTypeChanged = viewModel::onUnitTypeChanged,
+                                onPricePerUnitChanged = viewModel::onPricePerUnitChanged,
+                                onAvailableQuantityChanged = viewModel::onAvailableQuantityChanged,
+                                onImageUrlChanged = viewModel::onImageUrlChanged,
+                                onSaveClick = viewModel::saveProduct,
+                                onDeactivateClick = {}
+                            )
+                        }
+
+                        composable(
+                            route = Routes.FARMER_PRODUCT_EDIT,
+                            arguments = listOf(
+                                navArgument(Routes.PRODUCT_ID_ARG) { type = NavType.LongType }
+                            )
+                        ) { backStackEntry ->
+                            val productId = backStackEntry.arguments?.getLong(Routes.PRODUCT_ID_ARG) ?: 0L
+
+                            val viewModel: FarmerProductFormViewModel = viewModel(
+                                factory = FarmerProductFormViewModel.Factory(
+                                    productRepository = appContainer.productRepository,
+                                    productId = productId
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.navigation.collect {
+                                    navController.popBackStack()
+                                }
+                            }
+
+                            FarmerProductFormScreen(
+                                uiState = uiState,
+                                onBackClick = { navController.popBackStack() },
+                                onPickupLocationIdChanged = viewModel::onPickupLocationIdChanged,
+                                onNameChanged = viewModel::onNameChanged,
+                                onDescriptionChanged = viewModel::onDescriptionChanged,
+                                onCategoryChanged = viewModel::onCategoryChanged,
+                                onUnitTypeChanged = viewModel::onUnitTypeChanged,
+                                onPricePerUnitChanged = viewModel::onPricePerUnitChanged,
+                                onAvailableQuantityChanged = viewModel::onAvailableQuantityChanged,
+                                onImageUrlChanged = viewModel::onImageUrlChanged,
+                                onSaveClick = viewModel::saveProduct,
+                                onDeactivateClick = viewModel::deactivateProduct
+                            )
+                        }
+
+
+
                     }
                 }
             }

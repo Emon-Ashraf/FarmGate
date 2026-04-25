@@ -54,10 +54,18 @@ object Routes {
     const val FARMER_ORDERS = "farmer_orders"
     const val FARMER_PRODUCTS = "farmer_products"
     const val FARMER_PROFILE = "farmer_profile"
+
+    const val FARMER_PRODUCT_CREATE = "farmer_product_create"
+    const val FARMER_PRODUCT_EDIT = "farmer_product_edit/{$PRODUCT_ID_ARG}"
+
     const val FARMER_ORDER_DETAILS = "farmer_order_details/{$ORDER_ID_ARG}"
 
     fun farmerOrderDetails(orderId: Long): String {
         return "farmer_order_details/$orderId"
+    }
+
+    fun farmerProductEdit(productId: Long): String {
+        return "farmer_product_edit/$productId"
     }
 
     const val ADMIN_ISSUES = "admin_issues"

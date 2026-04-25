@@ -1,12 +1,11 @@
 package com.example.farmgate.data.model
 
-
-enum class UnitType {
-    Piece,
-    Kg,
-    Liter,
-    Dozen,
-    Bundle;
+enum class UnitType(val apiValue: Int) {
+    Piece(1),
+    Kg(2),
+    Liter(3),
+    Dozen(4),
+    Bundle(5);
 
     companion object {
         fun fromInt(value: Int): UnitType {
