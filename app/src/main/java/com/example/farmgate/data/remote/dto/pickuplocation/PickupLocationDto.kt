@@ -1,7 +1,7 @@
-package com.example.farmgate.data.model
+package com.example.farmgate.data.remote.dto.pickuplocation
 
 
-data class PickupLocation(
+data class PickupLocationDto(
     val id: Long,
     val cityId: Long,
     val cityName: String,
@@ -11,7 +11,4 @@ data class PickupLocation(
     val longitude: Double,
     val instructions: String?,
     val isActive: Boolean
-) {
-    val displayName: String
-        get() = "$areaName, $cityName"
-}
+)

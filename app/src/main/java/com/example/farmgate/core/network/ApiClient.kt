@@ -18,6 +18,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import com.example.farmgate.data.remote.api.PickupLocationsApi
 
 object ApiClient {
 
@@ -93,6 +94,11 @@ object ApiClient {
     fun provideAdminApi(context: Context): AdminApi {
         val sessionManager = SessionManager(context.applicationContext)
         return provideRetrofit(sessionManager).create(AdminApi::class.java)
+    }
+
+    fun providePickupLocationsApi(context: Context): PickupLocationsApi {
+        val sessionManager = SessionManager(context.applicationContext)
+        return provideRetrofit(sessionManager).create(PickupLocationsApi::class.java)
     }
 
 }

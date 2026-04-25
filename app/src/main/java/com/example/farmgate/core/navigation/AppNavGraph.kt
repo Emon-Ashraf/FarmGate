@@ -391,6 +391,7 @@ fun AppNavGraph(
                             val viewModel: FarmerProductFormViewModel = viewModel(
                                 factory = FarmerProductFormViewModel.Factory(
                                     productRepository = appContainer.productRepository,
+                                    pickupLocationRepository = appContainer.pickupLocationRepository,
                                     productId = null
                                 )
                             )
@@ -429,6 +430,7 @@ fun AppNavGraph(
                             val viewModel: FarmerProductFormViewModel = viewModel(
                                 factory = FarmerProductFormViewModel.Factory(
                                     productRepository = appContainer.productRepository,
+                                    pickupLocationRepository = appContainer.pickupLocationRepository,
                                     productId = productId
                                 )
                             )

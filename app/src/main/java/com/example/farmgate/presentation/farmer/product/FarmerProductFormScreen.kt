@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.example.farmgate.data.model.UnitType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,15 +59,29 @@ fun FarmerProductFormScreen(
         return
     }
 
-    val selectedUnit = UnitType.fromApiValue(uiState.unitType)
-    var unitMenuExpanded by remember { mutableStateOf(false) }
+    val selectedPickupLocation = uiState.pickupLocations.firstOrNull {
+        it.id.toString() == uiState.pickupLocationId
+    }
+
+    var pickupExpanded by remember { mutableStateOf(false) }
+    var unitExpanded by remember { mutableStateOf(false) }
+
+    val unitOptions = listOf(
+        1 to "Piece",
+        2 to "Kg",
+        3 to "Liter",
+        4 to "Dozen",
+        5 to "Bundle"
+    )
+
+    val selectedUnitLabel = unitOptions.firstOrNull { it.first == uiState.unitType }?.second ?: "Piece"
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(14.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         TextButton(onClick = onBackClick) {
             Text("← Back")
@@ -79,32 +92,52 @@ fun FarmerProductFormScreen(
             style = MaterialTheme.typography.headlineMedium
         )
 
-        Text(
-            text = if (uiState.isEditMode) {
-                "Update product information for your listing."
-            } else {
-                "Add a new product for customers to discover."
-            },
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        ExposedDropdownMenuBox(
+            expanded = pickupExpanded,
+            onExpandedChange = { pickupExpanded = !pickupExpanded }
+        ) {
+            OutlinedTextField(
+                value = selectedPickupLocation?.displayName ?: "",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("Pickup Location") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = pickupExpanded)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .menuAnchor()
+            )
 
-        OutlinedTextField(
-            value = uiState.pickupLocationId,
-            onValueChange = onPickupLocationIdChanged,
-            label = { Text("Pickup location ID") },
-            supportingText = {
-                Text("Temporary for now. Later this will be a pickup-location selector.")
-            },
-            modifier = Modifier.fillMaxWidth(),
-            singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-        )
+            ExposedDropdownMenu(
+                expanded = pickupExpanded,
+                onDismissRequest = { pickupExpanded = false }
+            ) {
+                uiState.pickupLocations.forEach { location ->
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(location.displayName)
+                                Text(
+                                    text = location.addressLine,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        },
+                        onClick = {
+                            onPickupLocationIdChanged(location.id.toString())
+                            pickupExpanded = false
+                        }
+                    )
+                }
+            }
+        }
 
         OutlinedTextField(
             value = uiState.name,
             onValueChange = onNameChanged,
-            label = { Text("Product name") },
+            label = { Text("Product Name") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -113,47 +146,44 @@ fun FarmerProductFormScreen(
             value = uiState.description,
             onValueChange = onDescriptionChanged,
             label = { Text("Description") },
-            placeholder = { Text("Fresh organic tomatoes from local farm") },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 3
+            modifier = Modifier.fillMaxWidth()
         )
 
         OutlinedTextField(
             value = uiState.category,
             onValueChange = onCategoryChanged,
             label = { Text("Category") },
-            placeholder = { Text("Vegetables, Fruits, Dairy...") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
 
         ExposedDropdownMenuBox(
-            expanded = unitMenuExpanded,
-            onExpandedChange = { unitMenuExpanded = !unitMenuExpanded }
+            expanded = unitExpanded,
+            onExpandedChange = { unitExpanded = !unitExpanded }
         ) {
             OutlinedTextField(
-                value = selectedUnit.displayName,
+                value = selectedUnitLabel,
                 onValueChange = {},
                 readOnly = true,
-                label = { Text("Unit type") },
+                label = { Text("Unit Type") },
                 trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitMenuExpanded)
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = unitExpanded)
                 },
                 modifier = Modifier
-                    .menuAnchor()
                     .fillMaxWidth()
+                    .menuAnchor()
             )
 
             ExposedDropdownMenu(
-                expanded = unitMenuExpanded,
-                onDismissRequest = { unitMenuExpanded = false }
+                expanded = unitExpanded,
+                onDismissRequest = { unitExpanded = false }
             ) {
-                UnitType.entries.forEach { unit ->
+                unitOptions.forEach { (value, label) ->
                     DropdownMenuItem(
-                        text = { Text(unit.displayName) },
+                        text = { Text(label) },
                         onClick = {
-                            onUnitTypeChanged(unit.apiValue)
-                            unitMenuExpanded = false
+                            onUnitTypeChanged(value)
+                            unitExpanded = false
                         }
                     )
                 }
@@ -163,39 +193,26 @@ fun FarmerProductFormScreen(
         OutlinedTextField(
             value = uiState.pricePerUnit,
             onValueChange = onPricePerUnitChanged,
-            label = { Text("Price per unit") },
-            placeholder = { Text("100") },
+            label = { Text("Price Per Unit") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            supportingText = {
-                Text("Example: price for 1 ${selectedUnit.displayName.lowercase()}")
-            }
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
 
         OutlinedTextField(
             value = uiState.availableQuantity,
             onValueChange = onAvailableQuantityChanged,
-            label = { Text("Available quantity") },
-            placeholder = { Text("25") },
+            label = { Text("Available Quantity") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            supportingText = {
-                Text("How many ${selectedUnit.displayName.lowercase()} are available")
-            }
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
         )
 
         OutlinedTextField(
             value = uiState.imageUrl,
             onValueChange = onImageUrlChanged,
-            label = { Text("Image URL") },
-            placeholder = { Text("https://example.com/image.jpg") },
-            supportingText = {
-                Text("Optional for now")
-            },
-            modifier = Modifier.fillMaxWidth(),
-            minLines = 2
+            label = { Text("Image Url") },
+            modifier = Modifier.fillMaxWidth()
         )
 
         uiState.errorMessage?.let {
@@ -237,11 +254,5 @@ fun FarmerProductFormScreen(
                 )
             }
         }
-
-        Text(
-            text = "Next improvement: replace pickup location ID with a real pickup-location dropdown.",
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
     }
 }

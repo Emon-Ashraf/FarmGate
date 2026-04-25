@@ -1,10 +1,10 @@
 package com.example.farmgate.presentation.farmer.product
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.farmgate.core.common.Resource
+import com.example.farmgate.data.repository.PickupLocationRepository
 import com.example.farmgate.data.repository.ProductRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,12 +16,13 @@ import kotlinx.coroutines.launch
 
 class FarmerProductFormViewModel(
     private val productRepository: ProductRepository,
+    private val pickupLocationRepository: PickupLocationRepository,
     private val productId: Long?
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
         FarmerProductFormUiState(
-            isLoading = productId != null,
+            isLoading = true,
             isEditMode = productId != null
         )
     )
@@ -31,8 +32,45 @@ class FarmerProductFormViewModel(
     val navigation: SharedFlow<Unit> = _navigation.asSharedFlow()
 
     init {
-        if (productId != null) {
-            loadProduct()
+        loadInitialData()
+    }
+
+    private fun loadInitialData() {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null,
+                successMessage = null
+            )
+
+            when (val locationsResult = pickupLocationRepository.getMyPickupLocations()) {
+                is Resource.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        pickupLocations = locationsResult.data.filter { it.isActive }
+                    )
+
+                    if (productId != null) {
+                        loadProduct()
+                    } else {
+                        val firstLocationId = locationsResult.data.firstOrNull { it.isActive }?.id
+                        _uiState.value = _uiState.value.copy(
+                            isLoading = false,
+                            pickupLocationId = firstLocationId?.toString().orEmpty()
+                        )
+                    }
+                }
+
+                is Resource.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isLoading = false,
+                        errorMessage = locationsResult.message
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _uiState.value = _uiState.value.copy(isLoading = true)
+                }
+            }
         }
     }
 
@@ -113,7 +151,7 @@ class FarmerProductFormViewModel(
 
         val pickupLocationId = state.pickupLocationId.toLongOrNull()
         if (pickupLocationId == null || pickupLocationId <= 0L) {
-            _uiState.value = state.copy(errorMessage = "Enter valid pickup location id.")
+            _uiState.value = state.copy(errorMessage = "Select a pickup location.")
             return
         }
 
@@ -228,12 +266,14 @@ class FarmerProductFormViewModel(
 
     class Factory(
         private val productRepository: ProductRepository,
+        private val pickupLocationRepository: PickupLocationRepository,
         private val productId: Long?
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return FarmerProductFormViewModel(
                 productRepository = productRepository,
+                pickupLocationRepository = pickupLocationRepository,
                 productId = productId
             ) as T
         }

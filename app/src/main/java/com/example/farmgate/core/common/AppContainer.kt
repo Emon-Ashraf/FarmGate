@@ -11,6 +11,7 @@ import com.example.farmgate.data.repository.CityRepository
 import com.example.farmgate.data.repository.IssueRepository
 import com.example.farmgate.data.repository.OrderDraftRepository
 import com.example.farmgate.data.repository.OrderRepository
+import com.example.farmgate.data.repository.PickupLocationRepository
 import com.example.farmgate.data.repository.ProductRepository
 import com.example.farmgate.data.repository.ProfileRepository
 import com.example.farmgate.data.repository.RatingRepository
@@ -46,6 +47,10 @@ class AppContainer(
 
     private val adminApi by lazy {
         ApiClient.provideAdminApi(appContext)
+    }
+
+    private val pickupLocationsApi by lazy {
+        ApiClient.providePickupLocationsApi(appContext)
     }
 
     val productsApi: ProductsApi by lazy {
@@ -95,5 +100,8 @@ class AppContainer(
         AdminRepository(adminApi)
     }
 
+    val pickupLocationRepository: PickupLocationRepository by lazy {
+        PickupLocationRepository(pickupLocationsApi)
+    }
 
 }

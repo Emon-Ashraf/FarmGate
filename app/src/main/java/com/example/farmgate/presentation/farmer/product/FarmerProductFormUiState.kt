@@ -1,5 +1,6 @@
 package com.example.farmgate.presentation.farmer.product
 
+import com.example.farmgate.data.model.PickupLocation
 
 data class FarmerProductFormUiState(
     val isLoading: Boolean = false,
@@ -8,6 +9,8 @@ data class FarmerProductFormUiState(
     val isEditMode: Boolean = false,
 
     val pickupLocationId: String = "",
+    val pickupLocations: List<PickupLocation> = emptyList(),
+
     val name: String = "",
     val description: String = "",
     val category: String = "",
