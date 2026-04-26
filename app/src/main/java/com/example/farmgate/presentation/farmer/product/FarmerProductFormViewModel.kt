@@ -43,39 +43,39 @@ class FarmerProductFormViewModel(
                 successMessage = null
             )
 
-            when (val locationsResult = pickupLocationRepository.getMyPickupLocations()) {
+            when (val pickupResult = pickupLocationRepository.getMyPickupLocations()) {
                 is Resource.Success -> {
                     _uiState.value = _uiState.value.copy(
-                        pickupLocations = locationsResult.data.filter { it.isActive }
+                        pickupLocations = pickupResult.data
                     )
-
-                    if (productId != null) {
-                        loadProduct()
-                    } else {
-                        val firstLocationId = locationsResult.data.firstOrNull { it.isActive }?.id
-                        _uiState.value = _uiState.value.copy(
-                            isLoading = false,
-                            pickupLocationId = firstLocationId?.toString().orEmpty()
-                        )
-                    }
                 }
 
                 is Resource.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        errorMessage = locationsResult.message
+                        errorMessage = pickupResult.message
                     )
+                    return@launch
                 }
 
                 is Resource.Loading -> {
                     _uiState.value = _uiState.value.copy(isLoading = true)
                 }
             }
+
+            if (productId != null) {
+                loadProduct()
+            } else {
+                _uiState.value = _uiState.value.copy(isLoading = false)
+            }
         }
     }
 
     fun onPickupLocationIdChanged(value: String) {
-        _uiState.value = _uiState.value.copy(pickupLocationId = value, errorMessage = null)
+        _uiState.value = _uiState.value.copy(
+            pickupLocationId = value,
+            errorMessage = null
+        )
     }
 
     fun onNameChanged(value: String) {

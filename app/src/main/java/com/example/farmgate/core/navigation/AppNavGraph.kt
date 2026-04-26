@@ -61,6 +61,8 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
+import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationsScreen
+import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationsViewModel
 import com.example.farmgate.presentation.farmer.product.FarmerProductFormScreen
 import com.example.farmgate.presentation.farmer.product.FarmerProductFormViewModel
 import com.example.farmgate.presentation.farmer.product.FarmerProductsScreen
@@ -309,6 +311,9 @@ fun AppNavGraph(
                                 onProductsClick = {
                                     farmerNavController.navigate(Routes.FARMER_PRODUCTS)
                                 },
+                                onPickupLocationsClick = {
+                                    farmerNavController.navigate(Routes.FARMER_PICKUP_LOCATIONS)
+                                },
                                 onProfileClick = {
                                     farmerNavController.navigate(Routes.FARMER_PROFILE)
                                 },
@@ -359,6 +364,50 @@ fun AppNavGraph(
                             )
                         }
 
+                        composable(Routes.FARMER_PICKUP_LOCATIONS) {
+                            val viewModel: FarmerPickupLocationsViewModel = viewModel(
+                                factory = FarmerPickupLocationsViewModel.Factory(
+                                    pickupLocationRepository = appContainer.pickupLocationRepository
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            FarmerPickupLocationsScreen(
+                                uiState = uiState,
+                                onBackClick = { farmerNavController.popBackStack() },
+                                onRetry = viewModel::loadPickupLocations,
+                                onAddClick = {
+                                    farmerNavController.navigate(Routes.FARMER_PICKUP_LOCATION_CREATE)
+                                },
+                                onLocationClick = { locationId ->
+                                    farmerNavController.navigate(Routes.farmerPickupLocationEdit(locationId))
+                                }
+                            )
+                        }
+
+                        composable(Routes.FARMER_PICKUP_LOCATION_CREATE) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Create Pickup Location - next step")
+                            }
+                        }
+
+                        composable(
+                            route = Routes.FARMER_PICKUP_LOCATION_EDIT,
+                            arguments = listOf(
+                                navArgument(Routes.PICKUP_LOCATION_ID_ARG) { type = NavType.LongType }
+                            )
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Edit Pickup Location - next step")
+                            }
+                        }
+
                         composable(Routes.FARMER_PROFILE) {
                             val viewModel: FarmerProfileViewModel = viewModel(
                                 factory = FarmerProfileViewModel.Factory(
@@ -399,13 +448,13 @@ fun AppNavGraph(
 
                             LaunchedEffect(Unit) {
                                 viewModel.navigation.collect {
-                                    navController.popBackStack()
+                                    farmerNavController.popBackStack()
                                 }
                             }
 
                             FarmerProductFormScreen(
                                 uiState = uiState,
-                                onBackClick = { navController.popBackStack() },
+                                onBackClick = { farmerNavController.popBackStack() },
                                 onPickupLocationIdChanged = viewModel::onPickupLocationIdChanged,
                                 onNameChanged = viewModel::onNameChanged,
                                 onDescriptionChanged = viewModel::onDescriptionChanged,
@@ -438,13 +487,13 @@ fun AppNavGraph(
 
                             LaunchedEffect(Unit) {
                                 viewModel.navigation.collect {
-                                    navController.popBackStack()
+                                    farmerNavController.popBackStack()
                                 }
                             }
 
                             FarmerProductFormScreen(
                                 uiState = uiState,
-                                onBackClick = { navController.popBackStack() },
+                                onBackClick = { farmerNavController.popBackStack() },
                                 onPickupLocationIdChanged = viewModel::onPickupLocationIdChanged,
                                 onNameChanged = viewModel::onNameChanged,
                                 onDescriptionChanged = viewModel::onDescriptionChanged,

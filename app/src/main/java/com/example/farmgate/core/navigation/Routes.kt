@@ -55,6 +55,15 @@ object Routes {
     const val FARMER_PRODUCTS = "farmer_products"
     const val FARMER_PROFILE = "farmer_profile"
 
+    //Pickup routes
+    const val PICKUP_LOCATION_ID_ARG = "pickupLocationId"
+
+    const val FARMER_PICKUP_LOCATIONS = "farmer_pickup_locations"
+    const val FARMER_PICKUP_LOCATION_CREATE = "farmer_pickup_location_create"
+    const val FARMER_PICKUP_LOCATION_EDIT =
+        "farmer_pickup_location_edit/{$PICKUP_LOCATION_ID_ARG}"
+
+    //
     const val FARMER_PRODUCT_CREATE = "farmer_product_create"
     const val FARMER_PRODUCT_EDIT = "farmer_product_edit/{$PRODUCT_ID_ARG}"
 
@@ -66,6 +75,10 @@ object Routes {
 
     fun farmerProductEdit(productId: Long): String {
         return "farmer_product_edit/$productId"
+    }
+
+    fun farmerPickupLocationEdit(pickupLocationId: Long): String {
+        return "farmer_pickup_location_edit/$pickupLocationId"
     }
 
     const val ADMIN_ISSUES = "admin_issues"

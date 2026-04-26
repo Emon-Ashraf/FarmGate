@@ -39,8 +39,9 @@ fun FarmerHomeScreen(
     orders: List<Order>,
     onOrdersClick: () -> Unit,
     onProductsClick: () -> Unit,
+    onPickupLocationsClick: () -> Unit,
     onProfileClick: () -> Unit,
-    onOrderClick: (Long) -> Unit
+    onOrderClick: (Long) -> Unit,
 ) {
     val pendingOrders = orders.count { it.status == OrderStatus.Pending }
     val activeOrders = orders.count {
@@ -174,11 +175,21 @@ fun FarmerHomeScreen(
                 )
 
                 FarmGateSecondaryButton(
+                    text = "Pickup Locations",
+                    onClick = onPickupLocationsClick,
+                    enabled = true,
+                    modifier = Modifier.heightIn(min = 50.dp)
+                )
+
+
+                FarmGateSecondaryButton(
                     text = "Edit Profile",
                     onClick = onProfileClick,
                     enabled = true,
                     modifier = Modifier.heightIn(min = 50.dp)
                 )
+
+
             }
         }
 
