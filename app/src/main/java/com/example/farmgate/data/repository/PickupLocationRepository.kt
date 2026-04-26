@@ -22,8 +22,8 @@ class PickupLocationRepository(
         cityId: Long,
         areaName: String,
         addressLine: String,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         instructions: String?
     ): Resource<PickupLocation> {
         return safeApiCall(
@@ -48,8 +48,8 @@ class PickupLocationRepository(
         cityId: Long,
         areaName: String,
         addressLine: String,
-        latitude: Double,
-        longitude: Double,
+        latitude: Double?,
+        longitude: Double?,
         instructions: String?
     ): Resource<PickupLocation> {
         return safeApiCall(

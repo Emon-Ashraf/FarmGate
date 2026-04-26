@@ -61,6 +61,8 @@ import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrderDetailsViewModel
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersScreen
 import com.example.farmgate.presentation.farmer.order.FarmerOrdersViewModel
+import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationFormScreen
+import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationFormViewModel
 import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationsScreen
 import com.example.farmgate.presentation.farmer.pickuplocation.FarmerPickupLocationsViewModel
 import com.example.farmgate.presentation.farmer.product.FarmerProductFormScreen
@@ -386,12 +388,31 @@ fun AppNavGraph(
                         }
 
                         composable(Routes.FARMER_PICKUP_LOCATION_CREATE) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("Create Pickup Location - next step")
+                            val viewModel: FarmerPickupLocationFormViewModel = viewModel(
+                                factory = FarmerPickupLocationFormViewModel.Factory(
+                                    pickupLocationRepository = appContainer.pickupLocationRepository,
+                                    cityRepository = appContainer.cityRepository,
+                                    pickupLocationId = null
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.navigation.collect {
+                                    farmerNavController.popBackStack()
+                                }
                             }
+
+                            FarmerPickupLocationFormScreen(
+                                uiState = uiState,
+                                onBackClick = { farmerNavController.popBackStack() },
+                                onCityChanged = viewModel::onCityChanged,
+                                onAreaNameChanged = viewModel::onAreaNameChanged,
+                                onAddressLineChanged = viewModel::onAddressLineChanged,
+                                onInstructionsChanged = viewModel::onInstructionsChanged,
+                                onSaveClick = viewModel::savePickupLocation,
+                                onDeactivateClick = {}
+                            )
                         }
 
                         composable(
@@ -399,13 +420,35 @@ fun AppNavGraph(
                             arguments = listOf(
                                 navArgument(Routes.PICKUP_LOCATION_ID_ARG) { type = NavType.LongType }
                             )
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text("Edit Pickup Location - next step")
+                        ) { backStackEntry ->
+                            val pickupLocationId =
+                                backStackEntry.arguments?.getLong(Routes.PICKUP_LOCATION_ID_ARG) ?: 0L
+
+                            val viewModel: FarmerPickupLocationFormViewModel = viewModel(
+                                factory = FarmerPickupLocationFormViewModel.Factory(
+                                    pickupLocationRepository = appContainer.pickupLocationRepository,
+                                    cityRepository = appContainer.cityRepository,
+                                    pickupLocationId = pickupLocationId
+                                )
+                            )
+                            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.navigation.collect {
+                                    farmerNavController.popBackStack()
+                                }
                             }
+
+                            FarmerPickupLocationFormScreen(
+                                uiState = uiState,
+                                onBackClick = { farmerNavController.popBackStack() },
+                                onCityChanged = viewModel::onCityChanged,
+                                onAreaNameChanged = viewModel::onAreaNameChanged,
+                                onAddressLineChanged = viewModel::onAddressLineChanged,
+                                onInstructionsChanged = viewModel::onInstructionsChanged,
+                                onSaveClick = viewModel::savePickupLocation,
+                                onDeactivateClick = viewModel::deactivatePickupLocation
+                            )
                         }
 
                         composable(Routes.FARMER_PROFILE) {

@@ -57,6 +57,7 @@ fun FarmerProductFormScreen(
     var pickupExpanded by remember { mutableStateOf(false) }
     var unitExpanded by remember { mutableStateOf(false) }
     var categoryExpanded by remember { mutableStateOf(false) }
+    val hasPickupLocations = uiState.pickupLocations.isNotEmpty()
 
     val categoryOptions = listOf(
         "Vegetables",
@@ -132,56 +133,89 @@ fun FarmerProductFormScreen(
         }
 
         SectionCard(title = "Pickup & Availability") {
-            ExposedDropdownMenuBox(
-                expanded = pickupExpanded,
-                onExpandedChange = { pickupExpanded = !pickupExpanded }
-            ) {
-                OutlinedTextField(
-                    value = selectedPickupText,
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Pickup Location") },
-                    placeholder = { Text("Select pickup location") },
-                    trailingIcon = {
-                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = pickupExpanded)
-                    },
-                    modifier = Modifier
-                        .menuAnchor()
-                        .fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = pickupExpanded,
-                    onDismissRequest = { pickupExpanded = false }
+            if (!hasPickupLocations) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    uiState.pickupLocations.forEach { location ->
-                        DropdownMenuItem(
-                            text = {
-                                Column {
-                                    Text("${location.areaName}, ${location.cityName}")
-                                    Text(
-                                        text = location.addressLine,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            },
-                            onClick = {
-                                onPickupLocationIdChanged(location.id.toString())
-                                pickupExpanded = false
-                            }
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "Pickup location required",
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+
+                        Text(
+                            text = "You need at least one pickup location before creating a product.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onErrorContainer
+                        )
+
+                        Text(
+                            text = "Go to Pickup Locations and add one first.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onErrorContainer
                         )
                     }
                 }
+            } else {
+                ExposedDropdownMenuBox(
+                    expanded = pickupExpanded,
+                    onExpandedChange = { pickupExpanded = !pickupExpanded }
+                ) {
+                    OutlinedTextField(
+                        value = selectedPickupText,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Pickup Location") },
+                        placeholder = { Text("Select pickup location") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = pickupExpanded)
+                        },
+                        modifier = Modifier
+                            .menuAnchor()
+                            .fillMaxWidth()
+                    )
+
+                    ExposedDropdownMenu(
+                        expanded = pickupExpanded,
+                        onDismissRequest = { pickupExpanded = false }
+                    ) {
+                        uiState.pickupLocations.forEach { location ->
+                            DropdownMenuItem(
+                                text = {
+                                    Column {
+                                        Text("${location.areaName}, ${location.cityName}")
+                                        Text(
+                                            text = location.addressLine,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                },
+                                onClick = {
+                                    onPickupLocationIdChanged(location.id.toString())
+                                    pickupExpanded = false
+                                }
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Customers will collect this product from the selected pickup point.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = "Customers will collect this product from the selected pickup point.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -360,7 +394,7 @@ fun FarmerProductFormScreen(
 
         Button(
             onClick = onSaveClick,
-            enabled = !uiState.isSaving,
+            enabled = !uiState.isSaving && hasPickupLocations,
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(16.dp)
         ) {

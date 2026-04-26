@@ -149,6 +149,13 @@ class FarmerProductFormViewModel(
     fun saveProduct() {
         val state = _uiState.value
 
+        if (state.pickupLocations.isEmpty()) {
+            _uiState.value = state.copy(
+                errorMessage = "Create a pickup location before adding a product."
+            )
+            return
+        }
+
         val pickupLocationId = state.pickupLocationId.toLongOrNull()
         if (pickupLocationId == null || pickupLocationId <= 0L) {
             _uiState.value = state.copy(errorMessage = "Select a pickup location.")

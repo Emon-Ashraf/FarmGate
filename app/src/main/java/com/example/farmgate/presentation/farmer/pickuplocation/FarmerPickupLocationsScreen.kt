@@ -1,6 +1,5 @@
 package com.example.farmgate.presentation.farmer.pickuplocation
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -13,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -24,9 +22,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.farmgate.data.model.PickupLocation
+import com.example.farmgate.presentation.components.FarmGatePrimaryButton
+import com.example.farmgate.presentation.components.FarmGateSecondaryButton
 
 @Composable
 fun FarmerPickupLocationsScreen(
@@ -54,7 +55,7 @@ fun FarmerPickupLocationsScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
                     .padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 TextButton(onClick = onBackClick) {
                     Text("← Back")
@@ -64,17 +65,28 @@ fun FarmerPickupLocationsScreen(
                     text = "Pickup Locations",
                     style = MaterialTheme.typography.headlineSmall.copy(
                         fontWeight = FontWeight.ExtraBold
-                    )
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+
+                Text(
+                    text = "We could not load your pickup locations.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 Text(
                     text = uiState.errorMessage,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.error
                 )
 
-                Button(onClick = onRetry) {
-                    Text("Retry")
-                }
+                FarmGatePrimaryButton(
+                    text = "Retry",
+                    onClick = onRetry,
+                    enabled = true,
+                    isLoading = false
+                )
             }
         }
 
@@ -87,7 +99,7 @@ fun FarmerPickupLocationsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
+                        .padding(start = 18.dp, end = 18.dp, top = 14.dp, bottom = 8.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     TextButton(onClick = onBackClick) {
@@ -108,12 +120,12 @@ fun FarmerPickupLocationsScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    Button(
+                    FarmGatePrimaryButton(
+                        text = "Add Pickup Location",
                         onClick = onAddClick,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text("Add Pickup Location")
-                    }
+                        enabled = true,
+                        isLoading = false
+                    )
                 }
 
                 if (uiState.locations.isEmpty()) {
@@ -123,16 +135,35 @@ fun FarmerPickupLocationsScreen(
                             .padding(24.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(
-                            text = "No pickup locations yet.",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = "No pickup locations yet",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+
+                            Text(
+                                text = "Add your first pickup point so customers know where to collect orders.",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            FarmGateSecondaryButton(
+                                text = "Add Pickup Location",
+                                onClick = onAddClick,
+                                enabled = true
+                            )
+                        }
                     }
                 } else {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(16.dp),
+                        contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 18.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
                         items(uiState.locations) { location ->
@@ -157,38 +188,44 @@ private fun PickupLocationCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
+        shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
-        )
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Surface(
-                shape = RoundedCornerShape(12.dp),
+                shape = RoundedCornerShape(10.dp),
                 color = if (location.isActive) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+                    Color(0x1A18D66B)
                 } else {
-                    MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                    Color(0x1AE11D48)
                 }
             ) {
                 Text(
                     text = if (location.isActive) "ACTIVE" else "INACTIVE",
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
                     color = if (location.isActive) {
-                        MaterialTheme.colorScheme.primary
+                        Color(0xFF18D66B)
                     } else {
-                        MaterialTheme.colorScheme.error
+                        Color(0xFFE11D48)
                     }
                 )
             }
 
             Text(
                 text = location.displayName,
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
             )
 
             Text(
@@ -199,9 +236,23 @@ private fun PickupLocationCard(
 
             if (!location.instructions.isNullOrBlank()) {
                 Text(
-                    text = location.instructions!!,
+                    text = "Note: ${location.instructions}",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            Surface(
+                shape = RoundedCornerShape(14.dp),
+                color = Color(0x1A18D66B)
+            ) {
+                Text(
+                    text = "Open Details",
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 9.dp),
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = Color(0xFF18D66B)
                 )
             }
         }
