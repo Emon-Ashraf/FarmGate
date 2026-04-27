@@ -2,8 +2,10 @@ package com.example.farmgate.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import com.example.farmgate.R
@@ -41,21 +44,19 @@ fun FarmGateSearchBar(
     val borderColor = if (isFocused) {
         MaterialTheme.colorScheme.primary
     } else {
-        MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
+        MaterialTheme.colorScheme.outline.copy(alpha = 0.35f)
     }
-
-    val backgroundColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
 
     Row(
         modifier = modifier
             .fillMaxWidth()
             .height(44.dp)
             .background(
-                color = backgroundColor,
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
                 shape = shape
             )
             .border(
-                width = 1.5.dp,
+                width = 1.dp,
                 color = borderColor,
                 shape = shape
             )
@@ -89,15 +90,34 @@ fun FarmGateSearchBar(
             ),
             interactionSource = remember { MutableInteractionSource() },
             decorationBox = { innerTextField ->
-                if (value.isBlank()) {
-                    Text(
-                        text = placeholder,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    if (value.isBlank()) {
+                        Text(
+                            text = placeholder,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    innerTextField()
                 }
-                innerTextField()
             }
         )
+
+        if (value.isNotBlank()) {
+            Text(
+                text = "Clear",
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable {
+                    onValueChange("")
+                }
+            )
+        }
     }
 }

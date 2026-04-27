@@ -42,7 +42,7 @@ fun FarmGateCitySelector(
             Icon(
                 painter = painterResource(id = R.drawable.ic_location),
                 contentDescription = "Location",
-                tint = Color(0xFF18D66B),
+                tint = Color(0xFFF10448),
                 modifier = Modifier.size(18.dp)
             )
 

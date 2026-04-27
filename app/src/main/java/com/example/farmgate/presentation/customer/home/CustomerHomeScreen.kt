@@ -1,30 +1,32 @@
 package com.example.farmgate.presentation.customer.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -38,13 +40,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.example.farmgate.presentation.components.FarmGateCitySelector
-import com.example.farmgate.presentation.components.FarmGatePrimaryButton
-import com.example.farmgate.presentation.components.ProductCard
+import androidx.compose.material3.Icon
 import com.example.farmgate.R
+import com.example.farmgate.presentation.components.FarmGatePrimaryButton
 import com.example.farmgate.presentation.components.FarmGateSearchBar
-
+import com.example.farmgate.presentation.components.ProductCard
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -54,16 +57,17 @@ fun CustomerHomeScreen(
     onSearchQueryChanged: (String) -> Unit,
     onRetry: () -> Unit,
     onProductClick: (Long) -> Unit,
-    onReviewOrderClick: () -> Unit
 ) {
     var cityDropdownExpanded by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+
+    val screenBackground = Color(0xFFFFFFFF)
 
     if (uiState.isLoading) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background),
+                .background(screenBackground),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator()
@@ -75,14 +79,14 @@ fun CustomerHomeScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
+                .background(screenBackground)
+                .padding(18.dp)
                 .pointerInput(Unit) {
                     detectTapGestures(
-                        onTap = {
-                            focusManager.clearFocus()
-                        }
+                        onTap = { focusManager.clearFocus() }
                     )
-                }
+                },
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = "FarmGate",
@@ -104,97 +108,166 @@ fun CustomerHomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
+            .background(screenBackground)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 8.dp)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
+            color = MaterialTheme.colorScheme.surface,
+            shadowElevation = 4.dp
+            //color = Color.Transparent
         ) {
-            Text(
-                text = "Good morning, ${uiState.fullName.ifBlank { "there" }}",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-
-            Spacer(modifier = Modifier.height(2.dp))
-
-            Text(
-                text = "Fresh produce for pickup near you.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            ExposedDropdownMenuBox(
-                expanded = cityDropdownExpanded,
-                onExpandedChange = {
-                    cityDropdownExpanded = !cityDropdownExpanded
-                }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 14.dp, end = 18.dp, top = 12.dp, bottom = 8.dp)
             ) {
-                FarmGateCitySelector(
-                    cityName = uiState.selectedCityName.orEmpty(),
-                    onClick = { cityDropdownExpanded = true },
-                    modifier = Modifier.menuAnchor(MenuAnchorType.PrimaryNotEditable)
-                )
-
-                ExposedDropdownMenu(
-                    expanded = cityDropdownExpanded,
-                    onDismissRequest = { cityDropdownExpanded = false },
-                    containerColor = MaterialTheme.colorScheme.surface
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    uiState.cities.forEach { city ->
-                        DropdownMenuItem(
-                            text = {
-                                Text(
-                                    text = city.name,
-                                    color = MaterialTheme.colorScheme.onSurface
+                    Row(
+                        modifier = Modifier.weight(1f),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .weight(1f),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        ) {
+                            Image(
+                                painter = painterResource(id = R.drawable.ic_farmgate_small),
+                                contentDescription = "FarmGate",
+                                modifier = Modifier.size(42.dp),
+                            )
+                            Text(
+                                text = "FarmGate",
+                                style = MaterialTheme.typography.headlineSmall.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 1
+                            )
+                        }
+
+                    }
+
+                    ExposedDropdownMenuBox(
+                        expanded = cityDropdownExpanded,
+                        onExpandedChange = {
+                            cityDropdownExpanded = !cityDropdownExpanded
+                        }
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
+                            shape = RoundedCornerShape(18.dp),
+                            color = MaterialTheme.colorScheme.surface,
+                            tonalElevation = 1.dp,
+                            shadowElevation = 2.dp,
+                            onClick = { cityDropdownExpanded = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_location),
+                                    contentDescription = "Location",
+                                    tint = Color(0xFFF50153),
+                                    modifier = Modifier.size(16.dp)
                                 )
-                            },
-                            onClick = {
-                                cityDropdownExpanded = false
-                                onCitySelected(city.id)
+
+                                Text(
+                                    text = uiState.selectedCityName?.takeIf { it.isNotBlank() } ?: "Choose city",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Medium
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_arrow_drop_down),
+                                    contentDescription = "Select city",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
                             }
-                        )
+                        }
+
+                        ExposedDropdownMenu(
+                            expanded = cityDropdownExpanded,
+                            onDismissRequest = { cityDropdownExpanded = false },
+                            containerColor = MaterialTheme.colorScheme.surface
+                        ) {
+                            uiState.cities.forEach { city ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(
+                                            text = city.name,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    },
+                                    onClick = {
+                                        cityDropdownExpanded = false
+                                        onCitySelected(city.id)
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-            FarmGateSearchBar(
-                value = uiState.searchQuery,
-                onValueChange = onSearchQueryChanged
-            )
+                Text(
+                    text = "Good morning, ${uiState.fullName.ifBlank { "there" }}",
+                    style = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground
+                )
 
-            if (uiState.hasActiveDraft) {
-                Spacer(modifier = Modifier.height(10.dp))
+                //Spacer(modifier = Modifier.height(4.dp))
 
-                FarmGatePrimaryButton(
-                    text = "Review Order",
-                    onClick = onReviewOrderClick,
-                    enabled = true,
-                    isLoading = false,
-                    modifier = Modifier.heightIn(min = 48.dp)
+                /*Text(
+                    text = "Find fresh produce near you.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )*/
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                FarmGateSearchBar(
+                    value = uiState.searchQuery,
+                    onValueChange = onSearchQueryChanged
+                )
+
+
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Text(
+                    text = if (uiState.selectedCityName.isNullOrBlank()) {
+                        if (uiState.searchQuery.isBlank()) "Products" else "Search results"
+                    } else {
+                        if (uiState.searchQuery.isBlank()) {
+                            "Products in ${uiState.selectedCityName}"
+                        } else {
+                            "Results in ${uiState.selectedCityName}"
+                        }
+                    },
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.SemiBold
+                    ),
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = if (uiState.selectedCityName.isNullOrBlank()) {
-                    if (uiState.searchQuery.isBlank()) "Products" else "Search results"
-                } else {
-                    if (uiState.searchQuery.isBlank()) {
-                        "Products in ${uiState.selectedCityName}"
-                    } else {
-                        "Results in ${uiState.selectedCityName}"
-                    }
-                },
-                style = MaterialTheme.typography.titleLarge,
-                color = MaterialTheme.colorScheme.onBackground
-            )
         }
 
         when {
@@ -248,7 +321,7 @@ fun CustomerHomeScreen(
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 18.dp),
+                    contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 18.dp, top = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {

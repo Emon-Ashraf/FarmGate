@@ -52,7 +52,9 @@ fun CustomerBottomNavBar(
 
             NavigationBarItem(
                 selected = selected,
-                onClick = { onItemClick(item.route) },
+                onClick = {
+                    onItemClick(item.route)
+                },
                 icon = {
                     Icon(
                         painter = painterResource(id = item.iconRes),

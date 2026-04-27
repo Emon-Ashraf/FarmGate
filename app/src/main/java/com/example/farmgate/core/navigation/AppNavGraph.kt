@@ -176,7 +176,16 @@ fun AppNavGraph(
             composable(Routes.CUSTOMER_MAIN) {
                 val customerNavController = rememberNavController()
 
-                CustomerMainScreen(navController = customerNavController) { innerModifier ->
+                val orderDraft by appContainer.orderDraftRepository.draft.collectAsStateWithLifecycle()
+                val cartItemCount = orderDraft?.items?.size ?: 0
+
+                CustomerMainScreen(
+                    navController = customerNavController,
+                    cartItemCount = cartItemCount,
+                    onCartClick = {
+                        navController.navigate(Routes.CUSTOMER_REVIEW_ORDER)
+                    }
+                ) { innerModifier ->
                     NavHost(
                         navController = customerNavController,
                         startDestination = Routes.CUSTOMER_HOME,
@@ -201,9 +210,7 @@ fun AppNavGraph(
                                 onProductClick = { productId ->
                                     navController.navigate(Routes.customerProductDetails(productId))
                                 },
-                                onReviewOrderClick = {
-                                    navController.navigate(Routes.CUSTOMER_REVIEW_ORDER)
-                                }
+
                             )
                         }
 
