@@ -12,20 +12,18 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -43,25 +41,21 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.material3.Icon
 import com.example.farmgate.R
-import com.example.farmgate.presentation.components.FarmGatePrimaryButton
 import com.example.farmgate.presentation.components.FarmGateSearchBar
 import com.example.farmgate.presentation.components.ProductCard
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomerHomeScreen(
     uiState: CustomerHomeUiState,
     onCitySelected: (Long) -> Unit,
     onSearchQueryChanged: (String) -> Unit,
     onRetry: () -> Unit,
-    onProductClick: (Long) -> Unit,
+    onProductClick: (Long) -> Unit
 ) {
     var cityDropdownExpanded by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-
-    val screenBackground = Color(0xFFFFFFFF)
+    val screenBackground = Color.White
 
     if (uiState.isLoading) {
         Box(
@@ -93,11 +87,13 @@ fun CustomerHomeScreen(
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onBackground
             )
+
             Text(
                 text = uiState.screenErrorMessage,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error
             )
+
             TextButton(onClick = onRetry) {
                 Text("Retry")
             }
@@ -105,205 +101,105 @@ fun CustomerHomeScreen(
         return
     }
 
-    Column(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
         modifier = Modifier
             .fillMaxSize()
             .background(screenBackground)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onTap = { focusManager.clearFocus() }
+                )
+            },
+        contentPadding = PaddingValues(
+            start = 4.dp,
+            end = 4.dp,
+            top = 4.dp,
+            bottom = if (uiState.hasActiveDraft) 92.dp else 18.dp
+        ),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(bottomStart = 12.dp, bottomEnd = 12.dp),
-            color = MaterialTheme.colorScheme.surface,
-            shadowElevation = 4.dp
-            //color = Color.Transparent
+        item(
+            span = { GridItemSpan(maxLineSpan) }
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 14.dp, end = 18.dp, top = 12.dp, bottom = 8.dp)
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .weight(1f),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.ic_farmgate_small),
-                                contentDescription = "FarmGate",
-                                modifier = Modifier.size(42.dp),
-                            )
-                            Text(
-                                text = "FarmGate",
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = MaterialTheme.colorScheme.onBackground,
-                                maxLines = 1
-                            )
-                        }
+            CustomerHomeHeader(
+                uiState = uiState,
+                cityDropdownExpanded = cityDropdownExpanded,
+                onCityDropdownClick = {
+                    cityDropdownExpanded = true
+                },
+                onCityDropdownDismiss = {
+                    cityDropdownExpanded = false
+                },
+                onCitySelected = { cityId ->
+                    cityDropdownExpanded = false
+                    onCitySelected(cityId)
+                },
+                onSearchQueryChanged = onSearchQueryChanged
+            )
+        }
 
-                    }
-
-                    ExposedDropdownMenuBox(
-                        expanded = cityDropdownExpanded,
-                        onExpandedChange = {
-                            cityDropdownExpanded = !cityDropdownExpanded
-                        }
-                    ) {
-                        Surface(
-                            modifier = Modifier
-                                .menuAnchor(MenuAnchorType.PrimaryNotEditable),
-                            shape = RoundedCornerShape(18.dp),
-                            color = MaterialTheme.colorScheme.surface,
-                            tonalElevation = 1.dp,
-                            shadowElevation = 2.dp,
-                            onClick = { cityDropdownExpanded = true }
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_location),
-                                    contentDescription = "Location",
-                                    tint = Color(0xFFF50153),
-                                    modifier = Modifier.size(16.dp)
-                                )
-
-                                Text(
-                                    text = uiState.selectedCityName?.takeIf { it.isNotBlank() } ?: "Choose city",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.Medium
-                                    ),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-
-                                Icon(
-                                    painter = painterResource(id = R.drawable.ic_arrow_drop_down),
-                                    contentDescription = "Select city",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                            }
-                        }
-
-                        ExposedDropdownMenu(
-                            expanded = cityDropdownExpanded,
-                            onDismissRequest = { cityDropdownExpanded = false },
-                            containerColor = MaterialTheme.colorScheme.surface
-                        ) {
-                            uiState.cities.forEach { city ->
-                                DropdownMenuItem(
-                                    text = {
-                                        Text(
-                                            text = city.name,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    },
-                                    onClick = {
-                                        cityDropdownExpanded = false
-                                        onCitySelected(city.id)
-                                    }
-                                )
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(14.dp))
-
-                Text(
-                    text = "Good morning, ${uiState.fullName.ifBlank { "there" }}",
-                    style = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-
-                //Spacer(modifier = Modifier.height(4.dp))
-
-                /*Text(
-                    text = "Find fresh produce near you.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )*/
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                FarmGateSearchBar(
-                    value = uiState.searchQuery,
-                    onValueChange = onSearchQueryChanged
-                )
-
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Text(
-                    text = if (uiState.selectedCityName.isNullOrBlank()) {
-                        if (uiState.searchQuery.isBlank()) "Products" else "Search results"
+        item(
+            span = { GridItemSpan(maxLineSpan) }
+        ) {
+            Text(
+                text = if (uiState.selectedCityName.isNullOrBlank()) {
+                    if (uiState.searchQuery.isBlank()) "Products" else "Search results"
+                } else {
+                    if (uiState.searchQuery.isBlank()) {
+                        "Products in ${uiState.selectedCityName}"
                     } else {
-                        if (uiState.searchQuery.isBlank()) {
-                            "Products in ${uiState.selectedCityName}"
-                        } else {
-                            "Results in ${uiState.selectedCityName}"
-                        }
-                    },
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.SemiBold
-                    ),
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
+                        "Results in ${uiState.selectedCityName}"
+                    }
+                },
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onBackground
+            )
         }
 
         when {
             uiState.isProductsLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                item(
+                    span = { GridItemSpan(maxLineSpan) }
                 ) {
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
             }
 
             uiState.productsErrorMessage != null -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                item(
+                    span = { GridItemSpan(maxLineSpan) }
                 ) {
-                    Text(
-                        text = uiState.productsErrorMessage,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                    TextButton(onClick = onRetry) {
-                        Text("Retry")
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = uiState.productsErrorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error
+                        )
+
+                        TextButton(onClick = onRetry) {
+                            Text("Retry")
+                        }
                     }
                 }
             }
 
             uiState.products.isEmpty() -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                item(
+                    span = { GridItemSpan(maxLineSpan) }
                 ) {
                     Text(
                         text = if (uiState.searchQuery.isBlank()) {
@@ -318,21 +214,141 @@ fun CustomerHomeScreen(
             }
 
             else -> {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(start = 18.dp, end = 18.dp, bottom = 18.dp, top = 12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                items(uiState.products) { product ->
+                    ProductCard(
+                        product = product,
+                        onClick = { onProductClick(product.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CustomerHomeHeader(
+    uiState: CustomerHomeUiState,
+    cityDropdownExpanded: Boolean,
+    onCityDropdownClick: () -> Unit,
+    onCityDropdownDismiss: () -> Unit,
+    onCitySelected: (Long) -> Unit,
+    onSearchQueryChanged: (String) -> Unit
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(topStart = 6.dp, topEnd = 6.dp, bottomEnd = 8.dp, bottomStart = 8.dp),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 2.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 12.dp, end = 12.dp, top = 8.dp, bottom = 14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(2.dp)
                 ) {
-                    items(uiState.products) { product ->
-                        ProductCard(
-                            product = product,
-                            onClick = { onProductClick(product.id) }
-                        )
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_farmgate_small),
+                        contentDescription = "FarmGate",
+                        modifier = Modifier.size(42.dp)
+                    )
+
+                    Text(
+                        text = "FarmGate",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        maxLines = 1
+                    )
+                }
+
+                Box {
+                    Surface(
+                        shape = RoundedCornerShape(18.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        tonalElevation = 1.dp,
+                        shadowElevation = 2.dp,
+                        onClick = onCityDropdownClick
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_location),
+                                contentDescription = "Location",
+                                tint = Color(0xFFF50153),
+                                modifier = Modifier.size(16.dp)
+                            )
+
+                            Text(
+                                text = uiState.selectedCityName?.takeIf { it.isNotBlank() }
+                                    ?: "Choose city",
+                                style = MaterialTheme.typography.bodyMedium.copy(
+                                    fontWeight = FontWeight.Medium
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_arrow_drop_down),
+                                contentDescription = "Select city",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                    }
+
+                    DropdownMenu(
+                        expanded = cityDropdownExpanded,
+                        onDismissRequest = onCityDropdownDismiss,
+                        containerColor = MaterialTheme.colorScheme.surface
+                    ) {
+                        uiState.cities.forEach { city ->
+                            DropdownMenuItem(
+                                text = {
+                                    Text(
+                                        text = city.name,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                },
+                                onClick = {
+                                    onCitySelected(city.id)
+                                }
+                            )
+                        }
                     }
                 }
             }
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Text(
+                text = "Good morning, ${uiState.fullName.ifBlank { "there" }}",
+                style = MaterialTheme.typography.headlineSmall.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = MaterialTheme.colorScheme.onBackground
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            FarmGateSearchBar(
+                value = uiState.searchQuery,
+                onValueChange = onSearchQueryChanged
+            )
         }
     }
 }
