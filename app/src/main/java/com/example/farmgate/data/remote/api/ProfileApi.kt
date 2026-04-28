@@ -1,6 +1,7 @@
 package com.example.farmgate.data.remote.api
 
 import com.example.farmgate.data.remote.dto.profile.ProfileResponseDto
+import com.example.farmgate.data.remote.dto.profile.UpdateCustomerProfileRequestDto
 import com.example.farmgate.data.remote.dto.profile.UpdateFarmerProfileRequestDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -15,5 +16,10 @@ interface ProfileApi {
     @PUT("api/Profile/farmer")
     suspend fun updateFarmerProfile(
         @Body request: UpdateFarmerProfileRequestDto
+    ): Response<ProfileResponseDto>
+
+    @PUT("api/Profile/customer")
+    suspend fun updateCustomerProfile(
+        @Body request: UpdateCustomerProfileRequestDto
     ): Response<ProfileResponseDto>
 }

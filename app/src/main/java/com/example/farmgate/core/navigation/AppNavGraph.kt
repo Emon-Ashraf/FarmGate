@@ -240,6 +240,7 @@ fun AppNavGraph(
                             val viewModel: CustomerProfileViewModel = viewModel(
                                 factory = CustomerProfileViewModel.Factory(
                                     profileRepository = appContainer.profileRepository,
+                                    cityRepository = appContainer.cityRepository,
                                     authRepository = appContainer.authRepository
                                 )
                             )
@@ -247,7 +248,11 @@ fun AppNavGraph(
 
                             CustomerProfileScreen(
                                 uiState = uiState,
-                                onRetry = viewModel::loadProfile,
+                                onRetry = viewModel::loadData,
+                                onEditClick = viewModel::enterEditMode,
+                                onCancelEditClick = viewModel::cancelEditMode,
+                                onCitySelected = viewModel::onCitySelected,
+                                onSaveClick = viewModel::saveProfile,
                                 onLogoutClick = viewModel::logout,
                                 onNavigation = {
                                     viewModel.navigation.collect { route ->
@@ -257,6 +262,8 @@ fun AppNavGraph(
                                     }
                                 }
                             )
+
+
                         }
                     }
                 }
