@@ -27,7 +27,9 @@ class OrderDetailsViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessage = null,
+                actionErrorMessage = null,
+                actionSuccessMessage = null
             )
 
             when (val result = orderRepository.getOrderDetails(orderId)) {
@@ -75,7 +77,8 @@ class OrderDetailsViewModel(
 
         if (order.status != OrderStatus.Pending && order.status != OrderStatus.AwaitingFee) {
             _uiState.value = _uiState.value.copy(
-                actionErrorMessage = "This order cannot be cancelled from its current state."
+                actionErrorMessage = "This order cannot be cancelled from its current state.",
+                actionSuccessMessage = null
             )
             return
         }
@@ -97,14 +100,17 @@ class OrderDetailsViewModel(
                     _uiState.value = _uiState.value.copy(
                         isCancelling = false,
                         order = result.data,
-                        actionSuccessMessage = "Order cancelled successfully."
+                        cancelNote = "",
+                        actionSuccessMessage = "Order cancelled successfully.",
+                        actionErrorMessage = null
                     )
                 }
 
                 is Resource.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isCancelling = false,
-                        actionErrorMessage = result.message
+                        actionErrorMessage = result.message,
+                        actionSuccessMessage = null
                     )
                 }
 
@@ -122,7 +128,8 @@ class OrderDetailsViewModel(
 
         if (order.status != OrderStatus.AwaitingFee) {
             _uiState.value = _uiState.value.copy(
-                actionErrorMessage = "Service fee can only be confirmed when the order is AwaitingFee."
+                actionErrorMessage = "Service fee can only be confirmed after the farmer accepts the order.",
+                actionSuccessMessage = null
             )
             return
         }
@@ -144,14 +151,17 @@ class OrderDetailsViewModel(
                     _uiState.value = _uiState.value.copy(
                         isConfirmingFee = false,
                         order = result.data,
-                        actionSuccessMessage = "Service fee confirmed successfully."
+                        paymentReference = "",
+                        actionSuccessMessage = "Service fee confirmed successfully.",
+                        actionErrorMessage = null
                     )
                 }
 
                 is Resource.Error -> {
                     _uiState.value = _uiState.value.copy(
                         isConfirmingFee = false,
-                        actionErrorMessage = result.message
+                        actionErrorMessage = result.message,
+                        actionSuccessMessage = null
                     )
                 }
 

@@ -222,6 +222,10 @@ fun AppNavGraph(
                             )
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
+                            LaunchedEffect(Unit) {
+                                viewModel.refreshOrders()
+                            }
+
                             CustomerOrdersScreen(
                                 uiState = uiState,
                                 onBackClick = {},

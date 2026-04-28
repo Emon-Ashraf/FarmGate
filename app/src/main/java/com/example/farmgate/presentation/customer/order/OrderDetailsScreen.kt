@@ -43,6 +43,11 @@ import com.example.farmgate.data.model.UnitType
 import com.example.farmgate.presentation.components.FarmGatePrimaryButton
 import com.example.farmgate.presentation.components.FarmGateSecondaryButton
 import java.util.Locale
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun OrderDetailsScreen(
@@ -230,31 +235,7 @@ fun OrderDetailsScreen(
                         }
                     }
 
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(10.dp)
-                        ) {
-                            Text(
-                                text = order.farmerName ?: order.counterpartyName ?: "Farmer",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Text(
-                                text = "Phone: ${order.farmerPhone ?: "-"}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    FarmerContactCard(order = order)
 
                     Card(
                         shape = RoundedCornerShape(20.dp),
@@ -352,65 +333,7 @@ fun OrderDetailsScreen(
                         }
                     }
 
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surface
-                        )
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            Text(
-                                text = "Pickup location",
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Text(
-                                text = listOfNotNull(order.pickupArea, order.pickupCity)
-                                    .joinToString(", ")
-                                    .ifBlank { "-" },
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = FontWeight.SemiBold
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface
-                            )
-
-                            Text(
-                                text = order.pickupAddress ?: "-",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            if (!order.pickupInstructions.isNullOrBlank()) {
-                                Text(
-                                    text = "Instructions: ${order.pickupInstructions}",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-
-                            Text(
-                                text = "Pickup due: ${order.pickupDueAt}",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-
-                            if (!order.pickupCode.isNullOrBlank()) {
-                                Text(
-                                    text = "Pickup code: ${order.pickupCode}",
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    ),
-                                    color = Color(0xFF18D66B)
-                                )
-                            }
-                        }
-                    }
+                    PickupDetailsCard(order = order)
 
                     uiState.actionErrorMessage?.let {
                         Text(
@@ -639,4 +562,266 @@ private fun formatMoney(value: Double): String {
     } else {
         String.format(Locale.US, "%.2f", value)
     }
+}
+
+
+@Composable
+private fun FarmerContactCard(
+    order: Order
+) {
+    val context = LocalContext.current
+    val farmerName = order.farmerName ?: order.counterpartyName ?: "Farmer"
+
+    Card(
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            FarmerAvatar(name = farmerName)
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(3.dp)
+            ) {
+                Text(
+                    text = farmerName,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = order.farmerPhone ?: "Phone not provided",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = Color(0x1A18D66B)
+                ) {
+                    Text(
+                        text = "Pickup farmer",
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = Color(0xFF18D66B)
+                    )
+                }
+            }
+
+            if (!order.farmerPhone.isNullOrBlank()) {
+                Surface(
+                    onClick = {
+                        openDialer(
+                            context = context,
+                            phoneNumber = order.farmerPhone
+                        )
+                    },
+                    modifier = Modifier.size(44.dp),
+                    shape = CircleShape,
+                    color = Color(0x1A18D66B)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_phone),
+                            contentDescription = "Call farmer",
+                            tint = Color(0xFF18D66B),
+                            modifier = Modifier.size(21.dp)
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun FarmerAvatar(
+    name: String
+) {
+    val initial = name.firstOrNull()?.uppercaseChar()?.toString() ?: "F"
+
+    Surface(
+        modifier = Modifier.size(48.dp),
+        shape = CircleShape,
+        color = Color(0x1A18D66B)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Text(
+                text = initial,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                color = Color(0xFF18D66B)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PickupDetailsCard(
+    order: Order
+) {
+    val context = LocalContext.current
+    val locationTitle = listOfNotNull(order.pickupArea, order.pickupCity)
+        .joinToString(", ")
+        .ifBlank { "Pickup location" }
+
+    Card(
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Pickup details",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                if (!order.pickupAddress.isNullOrBlank()) {
+                    Text(
+                        text = "Directions",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = Color(0xFF18D66B),
+                        modifier = Modifier.clickable {
+                            openMapForAddress(
+                                context = context,
+                                address = listOfNotNull(
+                                    order.pickupAddress,
+                                    order.pickupArea,
+                                    order.pickupCity
+                                ).joinToString(", ")
+                            )
+                        }
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.size(42.dp),
+                    shape = CircleShape,
+                    color = Color(0x1AF50153)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_location),
+                            contentDescription = "Pickup location",
+                            tint = Color(0xFFF50153),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                }
+
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    Text(
+                        text = locationTitle,
+                        style = MaterialTheme.typography.bodyLarge.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        text = order.pickupAddress ?: "Address not provided",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (!order.pickupInstructions.isNullOrBlank()) {
+                        Text(
+                            text = "Instructions: ${order.pickupInstructions}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    Text(
+                        text = "Pickup due: ${order.pickupDueAt}",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (!order.pickupCode.isNullOrBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = Color(0x1A18D66B)
+                        ) {
+                            Text(
+                                text = "Pickup code: ${order.pickupCode}",
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                style = MaterialTheme.typography.labelMedium.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Color(0xFF18D66B)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun openDialer(
+    context: android.content.Context,
+    phoneNumber: String
+) {
+    val intent = Intent(
+        Intent.ACTION_DIAL,
+        Uri.parse("tel:$phoneNumber")
+    )
+    context.startActivity(intent)
+}
+
+private fun openMapForAddress(
+    context: android.content.Context,
+    address: String
+) {
+    val encodedAddress = Uri.encode(address)
+    val intent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse("geo:0,0?q=$encodedAddress")
+    )
+    context.startActivity(intent)
 }

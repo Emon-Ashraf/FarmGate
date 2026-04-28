@@ -1,6 +1,5 @@
 package com.example.farmgate.presentation.customer.order
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -29,24 +28,42 @@ class CustomerOrdersViewModel(
                 errorMessage = null
             )
 
-            when (val result = orderRepository.getCustomerOrders()) {
-                is Resource.Success -> {
-                    _uiState.value = CustomerOrdersUiState(
-                        isLoading = false,
-                        orders = result.data,
-                        errorMessage = null
-                    )
-                }
+            loadOrdersInternal(showFullLoading = true)
+        }
+    }
 
-                is Resource.Error -> {
-                    _uiState.value = CustomerOrdersUiState(
-                        isLoading = false,
-                        orders = emptyList(),
-                        errorMessage = result.message
-                    )
-                }
+    fun refreshOrders() {
+        viewModelScope.launch {
+            loadOrdersInternal(showFullLoading = false)
+        }
+    }
 
-                is Resource.Loading -> {
+    private suspend fun loadOrdersInternal(showFullLoading: Boolean) {
+        if (showFullLoading) {
+            _uiState.value = _uiState.value.copy(
+                isLoading = true,
+                errorMessage = null
+            )
+        }
+
+        when (val result = orderRepository.getCustomerOrders()) {
+            is Resource.Success -> {
+                _uiState.value = CustomerOrdersUiState(
+                    isLoading = false,
+                    orders = result.data,
+                    errorMessage = null
+                )
+            }
+
+            is Resource.Error -> {
+                _uiState.value = _uiState.value.copy(
+                    isLoading = false,
+                    errorMessage = result.message
+                )
+            }
+
+            is Resource.Loading -> {
+                if (showFullLoading) {
                     _uiState.value = _uiState.value.copy(isLoading = true)
                 }
             }
