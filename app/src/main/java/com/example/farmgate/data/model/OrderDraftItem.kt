@@ -8,5 +8,6 @@ data class OrderDraftItem(
     val pricePerUnit: Double,
     val availableQuantity: Double,
     val selectedQuantity: Double,
-    val pickupLocationId: Long
+    val pickupLocationId: Long,
+    val imageUrl: String?
 )

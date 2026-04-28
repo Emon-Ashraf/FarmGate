@@ -45,7 +45,9 @@ class OrderDraftRepository {
                         pricePerUnit = product.pricePerUnit,
                         availableQuantity = product.availableQuantity,
                         selectedQuantity = quantity,
-                        pickupLocationId = product.pickupLocationId
+                        pickupLocationId = product.pickupLocationId,
+                        imageUrl = product.imageUrl
+
                     )
                 )
             )
@@ -66,7 +68,9 @@ class OrderDraftRepository {
                 pricePerUnit = product.pricePerUnit,
                 availableQuantity = product.availableQuantity,
                 selectedQuantity = quantity,
-                pickupLocationId = product.pickupLocationId
+                pickupLocationId = product.pickupLocationId,
+                imageUrl = product.imageUrl
+
             )
         } else {
             currentDraft.items.map {
@@ -100,7 +104,9 @@ class OrderDraftRepository {
                     pricePerUnit = product.pricePerUnit,
                     availableQuantity = product.availableQuantity,
                     selectedQuantity = quantity,
-                    pickupLocationId = product.pickupLocationId
+                    pickupLocationId = product.pickupLocationId,
+                    imageUrl = product.imageUrl
+
                 )
             )
         )
