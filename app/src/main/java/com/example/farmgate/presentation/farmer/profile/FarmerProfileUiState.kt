@@ -1,6 +1,5 @@
 package com.example.farmgate.presentation.farmer.profile
 
-
 import com.example.farmgate.data.model.City
 import com.example.farmgate.data.model.UserProfile
 
@@ -8,6 +7,8 @@ data class FarmerProfileUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
     val isLoggingOut: Boolean = false,
+    val isEditMode: Boolean = false,
+
     val profile: UserProfile? = null,
     val cities: List<City> = emptyList(),
 

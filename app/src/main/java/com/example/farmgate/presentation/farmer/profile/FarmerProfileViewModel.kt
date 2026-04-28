@@ -104,6 +104,28 @@ class FarmerProfileViewModel(
         )
     }
 
+    fun startEdit() {
+        _uiState.value = _uiState.value.copy(
+            isEditMode = true,
+            errorMessage = null,
+            successMessage = null
+        )
+    }
+
+    fun cancelEdit() {
+        val profile = _uiState.value.profile ?: return
+
+        _uiState.value = _uiState.value.copy(
+            isEditMode = false,
+            displayName = profile.displayName.orEmpty(),
+            description = profile.description.orEmpty(),
+            selectedCityId = profile.primaryCityId,
+            selectedCityName = profile.primaryCityName,
+            errorMessage = null,
+            successMessage = null
+        )
+    }
+
     fun saveProfile() {
         val state = _uiState.value
 
@@ -132,11 +154,13 @@ class FarmerProfileViewModel(
                     val updated = result.data
                     _uiState.value = _uiState.value.copy(
                         isSaving = false,
+                        isEditMode = false,
                         profile = updated,
                         displayName = updated.displayName.orEmpty(),
                         description = updated.description.orEmpty(),
                         selectedCityId = updated.primaryCityId,
                         selectedCityName = updated.primaryCityName,
+                        errorMessage = null,
                         successMessage = "Profile updated successfully."
                     )
                 }

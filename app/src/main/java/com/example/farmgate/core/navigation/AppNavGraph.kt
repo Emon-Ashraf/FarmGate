@@ -309,6 +309,10 @@ fun AppNavGraph(
                                 )
                             )
                             val ordersUiState by ordersViewModel.uiState.collectAsStateWithLifecycle()
+                            //refresh
+                            LaunchedEffect(Unit) {
+                                ordersViewModel.refreshOrders()
+                            }
 
                             val profileViewModel: FarmerProfileViewModel = viewModel(
                                 factory = FarmerProfileViewModel.Factory(
@@ -351,6 +355,10 @@ fun AppNavGraph(
                                 )
                             )
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+                            LaunchedEffect(Unit) {
+                                viewModel.refreshOrders()
+                            }
 
                             FarmerOrdersScreen(
                                 uiState = uiState,
@@ -484,6 +492,8 @@ fun AppNavGraph(
                                 onDisplayNameChanged = viewModel::onDisplayNameChanged,
                                 onDescriptionChanged = viewModel::onDescriptionChanged,
                                 onCitySelected = viewModel::onCitySelected,
+                                onEditClick = viewModel::startEdit,
+                                onCancelEditClick = viewModel::cancelEdit,
                                 onSaveClick = viewModel::saveProfile,
                                 onRetry = viewModel::loadData,
                                 onLogoutClick = viewModel::logout,
