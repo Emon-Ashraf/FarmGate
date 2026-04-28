@@ -63,8 +63,13 @@ fun CustomerBottomNavBar(
         modifier = Modifier
             .fillMaxWidth()
             .navigationBarsPadding()
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        shape = RoundedCornerShape(14.dp),
+            .padding(horizontal = 2.dp, vertical = 0.dp),
+        shape = RoundedCornerShape(
+            topStart = 8.dp,
+            topEnd = 8.dp,
+            bottomStart = 8.dp,
+            bottomEnd = 8.dp
+        ),
         //color = MaterialTheme.colorScheme.surface,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.96f),
         shadowElevation = 8.dp,

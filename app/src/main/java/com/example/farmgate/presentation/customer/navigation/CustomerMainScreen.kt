@@ -28,7 +28,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.farmgate.R
 
-
 @Composable
 fun CustomerMainScreen(
     navController: NavHostController,
@@ -40,7 +39,6 @@ fun CustomerMainScreen(
     val currentRoute = backStackEntry.value?.destination?.route
 
     Scaffold(
-        containerColor = Color.Transparent,
         bottomBar = {
             CustomerBottomNavBar(
                 currentRoute = currentRoute,
