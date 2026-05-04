@@ -20,6 +20,7 @@ fun OrderSummaryDto.toModel(): Order {
         estimatedProductTotal = estimatedProductTotal,
         actualProductTotal = actualProductTotal,
         serviceFeeAmount = serviceFeeAmount,
+        feePaidAt = feePaidAt,
         pickupDueAt = pickupDueAt,
         createdAt = createdAt
     )

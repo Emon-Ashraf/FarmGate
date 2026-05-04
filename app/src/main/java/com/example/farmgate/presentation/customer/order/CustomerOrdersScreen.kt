@@ -541,7 +541,9 @@ private fun DetailRow(
 private fun FeeStatusChip(
     order: Order
 ) {
-    val isPaid = !order.feePaidAt.isNullOrBlank()
+    val isPaid = !order.feePaidAt.isNullOrBlank() ||
+            order.status == OrderStatus.Confirmed ||
+            order.status == OrderStatus.Completed
 
     val text = when {
         order.status == OrderStatus.Pending -> "Fee after approval"

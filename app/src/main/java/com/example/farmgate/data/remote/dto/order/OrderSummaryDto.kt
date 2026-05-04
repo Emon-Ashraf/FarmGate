@@ -7,6 +7,7 @@ data class OrderSummaryDto(
     val estimatedProductTotal: Double,
     val actualProductTotal: Double?,
     val serviceFeeAmount: Double,
+    val feePaidAt: String?,
     val pickupDueAt: String,
     val createdAt: String
 )

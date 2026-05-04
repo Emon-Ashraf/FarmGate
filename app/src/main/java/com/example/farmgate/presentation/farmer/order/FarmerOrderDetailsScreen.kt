@@ -617,21 +617,8 @@ private fun FarmerPickupCard(
                 )
             }
 
-            if (!order.pickupCode.isNullOrBlank()) {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = Color(0x1A18D66B)
-                ) {
-                    Text(
-                        text = "Pickup code: ${order.pickupCode}",
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 9.dp),
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            fontWeight = FontWeight.Bold
-                        ),
-                        color = Color(0xFF18D66B)
-                    )
-                }
-            }
+
+
         }
     }
 }
