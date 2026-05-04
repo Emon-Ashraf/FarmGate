@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.farmgate.R
+import com.example.farmgate.core.util.toReadableDateTime
 import com.example.farmgate.data.model.Order
 import com.example.farmgate.data.model.OrderItem
 import com.example.farmgate.data.model.OrderStatus
@@ -605,7 +606,7 @@ private fun FarmerPickupCard(
 
             FarmerSummaryRow(
                 label = "Pickup due",
-                value = order.pickupDueAt
+                value = order.pickupDueAt.toReadableDateTime()
             )
 
             if (!order.pickupInstructions.isNullOrBlank()) {
@@ -967,7 +968,7 @@ private fun OrderStatus.toFarmerDetailUi(): FarmerOrderDetailStatusUi {
             background = Color(0x1A18D66B),
             content = Color(0xFF18D66B),
             description = { order ->
-                "This order is ready. Complete it after verifying the pickup code before ${order.pickupDueAt}."
+                "This order is ready. Complete it after verifying the pickup code before ${order.pickupDueAt.toReadableDateTime()}."
             }
         )
 

@@ -37,6 +37,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.farmgate.core.util.toReadableDateTime
 import com.example.farmgate.data.model.Order
 import com.example.farmgate.data.model.OrderStatus
 import java.util.Locale
@@ -543,7 +544,7 @@ private fun FarmerOrderCard(
             ) {
                 FarmerOrderInfoBlock(
                     label = "Pickup due",
-                    value = order.pickupDueAt,
+                    value = order.pickupDueAt.toReadableDateTime(),
                     modifier = Modifier.weight(1f)
                 )
 

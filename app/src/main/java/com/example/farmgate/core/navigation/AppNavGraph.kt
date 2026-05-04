@@ -252,6 +252,7 @@ fun AppNavGraph(
                                 onEditClick = viewModel::enterEditMode,
                                 onCancelEditClick = viewModel::cancelEditMode,
                                 onCitySelected = viewModel::onCitySelected,
+                                onProfileImageUrlChanged = viewModel::onProfileImageUrlChanged,
                                 onSaveClick = viewModel::saveProfile,
                                 onLogoutClick = viewModel::logout,
                                 onNavigation = {
@@ -318,7 +319,8 @@ fun AppNavGraph(
                                 factory = FarmerProfileViewModel.Factory(
                                     profileRepository = appContainer.profileRepository,
                                     cityRepository = appContainer.cityRepository,
-                                    authRepository = appContainer.authRepository
+                                    authRepository = appContainer.authRepository,
+                                    ratingRepository = appContainer.ratingRepository
                                 )
                             )
                             val profileUiState by profileViewModel.uiState.collectAsStateWithLifecycle()
@@ -482,7 +484,8 @@ fun AppNavGraph(
                                 factory = FarmerProfileViewModel.Factory(
                                     profileRepository = appContainer.profileRepository,
                                     cityRepository = appContainer.cityRepository,
-                                    authRepository = appContainer.authRepository
+                                    authRepository = appContainer.authRepository,
+                                    ratingRepository = appContainer.ratingRepository
                                 )
                             )
                             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -492,6 +495,7 @@ fun AppNavGraph(
                                 onDisplayNameChanged = viewModel::onDisplayNameChanged,
                                 onDescriptionChanged = viewModel::onDescriptionChanged,
                                 onCitySelected = viewModel::onCitySelected,
+                                onProfileImageUrlChanged = viewModel::onProfileImageUrlChanged,
                                 onEditClick = viewModel::startEdit,
                                 onCancelEditClick = viewModel::cancelEdit,
                                 onSaveClick = viewModel::saveProfile,
@@ -597,6 +601,7 @@ fun AppNavGraph(
                 factory = ProductDetailsViewModel.Factory(
                     productRepository = appContainer.productRepository,
                     orderDraftRepository = appContainer.orderDraftRepository,
+                    ratingRepository = appContainer.ratingRepository,
                     productId = productId
                 )
             )

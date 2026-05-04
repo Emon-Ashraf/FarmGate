@@ -50,6 +50,12 @@ import androidx.compose.ui.unit.dp
 import com.example.farmgate.data.model.UserProfile
 import com.example.farmgate.presentation.components.FarmGatePrimaryButton
 import com.example.farmgate.presentation.components.FarmGateSecondaryButton
+import com.example.farmgate.data.model.Rating
+import java.util.Locale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.AsyncImage
+
 
 @Composable
 fun FarmerProfileScreen(
@@ -57,6 +63,7 @@ fun FarmerProfileScreen(
     onDisplayNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -87,6 +94,7 @@ fun FarmerProfileScreen(
                 onDisplayNameChanged = onDisplayNameChanged,
                 onDescriptionChanged = onDescriptionChanged,
                 onCitySelected = onCitySelected,
+                onProfileImageUrlChanged = onProfileImageUrlChanged,
                 onEditClick = onEditClick,
                 onCancelEditClick = onCancelEditClick,
                 onSaveClick = onSaveClick,
@@ -184,6 +192,7 @@ private fun FarmerProfileContent(
     onDisplayNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -206,6 +215,12 @@ private fun FarmerProfileContent(
             selectedCityName = uiState.selectedCityName
         )
 
+        FarmerRatingCard(
+            ratings = uiState.farmerRatings,
+            isLoading = uiState.isRatingsLoading,
+            errorMessage = uiState.ratingsErrorMessage
+        )
+
         if (!profile.isProfileCompleted) {
             ProfileCompletionWarningCard()
         }
@@ -216,6 +231,7 @@ private fun FarmerProfileContent(
             onDisplayNameChanged = onDisplayNameChanged,
             onDescriptionChanged = onDescriptionChanged,
             onCitySelected = onCitySelected,
+            onProfileImageUrlChanged = onProfileImageUrlChanged,
             onEditClick = onEditClick,
             onCancelEditClick = onCancelEditClick,
             onSaveClick = onSaveClick
@@ -248,6 +264,267 @@ private fun FarmerProfileContent(
 
         Spacer(modifier = Modifier.navigationBarsPadding())
         Spacer(modifier = Modifier.height(90.dp))
+    }
+}
+
+@Composable
+private fun FarmerProfileAvatar(
+    imageUrl: String?,
+    initials: String,
+    contentDescription: String
+) {
+    Surface(
+        modifier = Modifier.size(88.dp),
+        shape = CircleShape,
+        color = Color(0x1A18D66B)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!imageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    text = initials,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    color = Color(0xFF18D66B)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun FarmerRatingCard(
+    ratings: List<Rating>,
+    isLoading: Boolean,
+    errorMessage: String?
+) {
+    val averageText = when {
+        isLoading -> "..."
+        ratings.isEmpty() -> "No rating"
+        else -> String.format(Locale.US, "%.1f", ratings.map { it.score }.average())
+    }
+
+    val reviewText = when {
+        isLoading -> "Loading customer feedback"
+        ratings.isEmpty() -> "No customer reviews yet"
+        ratings.size == 1 -> "1 customer review"
+        else -> "${ratings.size} customer reviews"
+    }
+
+    val recentRatings = ratings
+        .filter { !it.comment.isNullOrBlank() }
+        .take(3)
+
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "Customer ratings",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Text(
+                        text = "Feedback from completed orders",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = Color(0x1A18D66B)
+                ) {
+                    Text(
+                        text = if (ratings.isEmpty() && !isLoading) {
+                            "★ New"
+                        } else {
+                            "★ $averageText"
+                        },
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.ExtraBold
+                        ),
+                        color = Color(0xFF18D66B)
+                    )
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                RatingMetricBox(
+                    value = if (ratings.isEmpty() && !isLoading) "0" else averageText,
+                    label = "Average",
+                    modifier = Modifier.weight(1f)
+                )
+
+                RatingMetricBox(
+                    value = if (isLoading) "..." else ratings.size.toString(),
+                    label = "Reviews",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+
+            Text(
+                text = reviewText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            errorMessage?.let { message ->
+                MessageCard(
+                    message = message,
+                    isError = true
+                )
+            }
+
+            if (recentRatings.isNotEmpty()) {
+                ProfileDivider()
+
+                Text(
+                    text = "Recent reviews",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                recentRatings.forEach { rating ->
+                    FarmerReviewItem(rating = rating)
+                }
+            } else if (!isLoading && ratings.isEmpty()) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(18.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+                ) {
+                    Text(
+                        text = "When customers complete orders and rate you, their reviews will appear here.",
+                        modifier = Modifier.padding(14.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun RatingMetricBox(
+    value: String,
+    label: String,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
+    }
+}
+
+@Composable
+private fun FarmerReviewItem(
+    rating: Rating
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.55f)
+    ) {
+        Column(
+            modifier = Modifier.padding(14.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Top
+            ) {
+                Text(
+                    text = rating.customerName?.takeIf { it.isNotBlank() } ?: "Customer",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+                Text(
+                    text = "★ ${rating.score}",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    color = Color(0xFF18D66B)
+                )
+            }
+
+            rating.comment?.takeIf { it.isNotBlank() }?.let { comment ->
+                Text(
+                    text = comment,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 
@@ -302,21 +579,11 @@ private fun FarmerProfileHeroCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Surface(
-                modifier = Modifier.size(88.dp),
-                shape = CircleShape,
-                color = Color(0x1A18D66B)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = initials,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.ExtraBold
-                        ),
-                        color = Color(0xFF18D66B)
-                    )
-                }
-            }
+            FarmerProfileAvatar(
+                imageUrl = profile.profileImageUrl,
+                initials = initials,
+                contentDescription = title
+            )
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -421,6 +688,7 @@ private fun PublicFarmerInfoCard(
     onDisplayNameChanged: (String) -> Unit,
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit
@@ -528,6 +796,20 @@ private fun PublicFarmerInfoCard(
                         modifier = Modifier
                             .fillMaxWidth()
                             .wrapContentHeight()
+                    )
+
+                    FarmGateOutlinedField(
+                        value = uiState.profileImageUrl,
+                        onValueChange = onProfileImageUrlChanged,
+                        label = "Profile photo URL",
+                        placeholder = "Paste Cloudinary image link",
+                        enabled = !uiState.isSaving && !uiState.isLoggingOut,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Uri,
+                            imeAction = ImeAction.Next
+                        ),
+                        modifier = Modifier.fillMaxWidth()
                     )
 
                     Column(
@@ -720,7 +1002,7 @@ private fun FarmerProfileHelpCard() {
                 )
 
                 Text(
-                    text = "Currently, farmers can update display name, description, and primary city. Profile photo requires backend upload support.",
+                    text = "Currently, farmers can update display name, description, and primary city. Profile photo.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

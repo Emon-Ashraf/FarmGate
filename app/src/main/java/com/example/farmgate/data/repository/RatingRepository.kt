@@ -1,6 +1,5 @@
 package com.example.farmgate.data.repository
 
-
 import com.example.farmgate.core.common.Resource
 import com.example.farmgate.core.network.safeApiCall
 import com.example.farmgate.data.model.Rating
@@ -11,7 +10,6 @@ import com.example.farmgate.data.remote.mapper.toModel
 class RatingRepository(
     private val ratingsApi: RatingsApi
 ) {
-
     suspend fun createRating(
         orderId: Long,
         score: Int,
@@ -35,8 +33,12 @@ class RatingRepository(
         farmerId: Long
     ): Resource<List<Rating>> {
         return safeApiCall(
-            apiCall = { ratingsApi.getRatingsForFarmer(farmerId) },
-            mapper = { dtoList -> dtoList.map { it.toModel() } }
+            apiCall = {
+                ratingsApi.getRatingsForFarmer(farmerId)
+            },
+            mapper = { dtoList ->
+                dtoList.map { it.toModel() }
+            }
         )
     }
 }

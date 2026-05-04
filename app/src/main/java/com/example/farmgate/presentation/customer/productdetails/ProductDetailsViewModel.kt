@@ -9,6 +9,7 @@ import com.example.farmgate.data.model.UnitType
 import com.example.farmgate.data.repository.DraftAddResult
 import com.example.farmgate.data.repository.OrderDraftRepository
 import com.example.farmgate.data.repository.ProductRepository
+import com.example.farmgate.data.repository.RatingRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,6 +21,7 @@ import kotlinx.coroutines.launch
 class ProductDetailsViewModel(
     private val productRepository: ProductRepository,
     private val orderDraftRepository: OrderDraftRepository,
+    private val ratingRepository: RatingRepository,
     private val productId: Long
 ) : ViewModel() {
 
@@ -45,16 +47,22 @@ class ProductDetailsViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
-                errorMessage = null
+                errorMessage = null,
+                farmerRatings = emptyList(),
+                ratingsErrorMessage = null
             )
 
             when (val result = productRepository.getProductById(productId)) {
                 is Resource.Success -> {
+                    val product = result.data
+
                     _uiState.value = _uiState.value.copy(
                         isLoading = false,
-                        product = result.data,
+                        product = product,
                         errorMessage = null
                     )
+
+                    loadFarmerRatings(product.farmerId)
                 }
 
                 is Resource.Error -> {
@@ -66,6 +74,38 @@ class ProductDetailsViewModel(
 
                 is Resource.Loading -> {
                     _uiState.value = _uiState.value.copy(isLoading = true)
+                }
+            }
+        }
+    }
+
+    private fun loadFarmerRatings(farmerId: Long) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isRatingsLoading = true,
+                ratingsErrorMessage = null
+            )
+
+            when (val result = ratingRepository.getRatingsForFarmer(farmerId)) {
+                is Resource.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isRatingsLoading = false,
+                        farmerRatings = result.data,
+                        ratingsErrorMessage = null
+                    )
+                }
+
+                is Resource.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isRatingsLoading = false,
+                        ratingsErrorMessage = result.message
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _uiState.value = _uiState.value.copy(
+                        isRatingsLoading = true
+                    )
                 }
             }
         }
@@ -142,6 +182,7 @@ class ProductDetailsViewModel(
     class Factory(
         private val productRepository: ProductRepository,
         private val orderDraftRepository: OrderDraftRepository,
+        private val ratingRepository: RatingRepository,
         private val productId: Long
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
@@ -149,6 +190,7 @@ class ProductDetailsViewModel(
             return ProductDetailsViewModel(
                 productRepository = productRepository,
                 orderDraftRepository = orderDraftRepository,
+                ratingRepository = ratingRepository,
                 productId = productId
             ) as T
         }

@@ -53,6 +53,7 @@ class CustomerProfileViewModel(
                     cities = citiesResult.data,
                     selectedCityId = profile.primaryCityId,
                     selectedCityName = profile.primaryCityName,
+                    profileImageUrl = profile.profileImageUrl.orEmpty(),
                     errorMessage = null
                 )
                 return@launch
@@ -83,6 +84,7 @@ class CustomerProfileViewModel(
             isEditMode = true,
             selectedCityId = profile.primaryCityId,
             selectedCityName = profile.primaryCityName,
+            profileImageUrl = profile.profileImageUrl.orEmpty(),
             actionErrorMessage = null,
             actionSuccessMessage = null
         )
@@ -95,6 +97,7 @@ class CustomerProfileViewModel(
             isEditMode = false,
             selectedCityId = profile?.primaryCityId,
             selectedCityName = profile?.primaryCityName,
+            profileImageUrl = profile?.profileImageUrl.orEmpty(),
             actionErrorMessage = null,
             actionSuccessMessage = null
         )
@@ -111,11 +114,19 @@ class CustomerProfileViewModel(
         )
     }
 
+    fun onProfileImageUrlChanged(value: String) {
+        _uiState.value = _uiState.value.copy(
+            profileImageUrl = value,
+            actionErrorMessage = null,
+            actionSuccessMessage = null
+        )
+    }
+
     fun saveProfile() {
-        val selectedCityId = _uiState.value.selectedCityId
+        val state = _uiState.value
 
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(
+            _uiState.value = state.copy(
                 isSaving = true,
                 actionErrorMessage = null,
                 actionSuccessMessage = null
@@ -123,7 +134,8 @@ class CustomerProfileViewModel(
 
             when (
                 val result = profileRepository.updateCustomerProfile(
-                    primaryCityId = selectedCityId
+                    primaryCityId = state.selectedCityId,
+                    profileImageUrl = state.profileImageUrl.trim().ifBlank { null }
                 )
             ) {
                 is Resource.Success -> {
@@ -133,6 +145,7 @@ class CustomerProfileViewModel(
                         profile = result.data,
                         selectedCityId = result.data.primaryCityId,
                         selectedCityName = result.data.primaryCityName,
+                        profileImageUrl = result.data.profileImageUrl.orEmpty(),
                         actionSuccessMessage = "Profile updated successfully.",
                         actionErrorMessage = null
                     )

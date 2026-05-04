@@ -1,6 +1,5 @@
 package com.example.farmgate.presentation.farmer.profile
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,7 @@ import com.example.farmgate.core.navigation.Graph
 import com.example.farmgate.data.repository.AuthRepository
 import com.example.farmgate.data.repository.CityRepository
 import com.example.farmgate.data.repository.ProfileRepository
+import com.example.farmgate.data.repository.RatingRepository
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -20,7 +20,8 @@ import kotlinx.coroutines.launch
 class FarmerProfileViewModel(
     private val profileRepository: ProfileRepository,
     private val cityRepository: CityRepository,
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val ratingRepository: RatingRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(FarmerProfileUiState())
@@ -38,7 +39,8 @@ class FarmerProfileViewModel(
             _uiState.value = _uiState.value.copy(
                 isLoading = true,
                 errorMessage = null,
-                successMessage = null
+                successMessage = null,
+                ratingsErrorMessage = null
             )
 
             val profileResult = profileRepository.getMyProfile()
@@ -71,9 +73,42 @@ class FarmerProfileViewModel(
                 description = profile.description.orEmpty(),
                 selectedCityId = profile.primaryCityId,
                 selectedCityName = profile.primaryCityName,
+                profileImageUrl = profile.profileImageUrl.orEmpty(),
                 errorMessage = null,
                 successMessage = null
             )
+
+            loadFarmerRatings(profile.userId)
+        }
+    }
+
+    private fun loadFarmerRatings(farmerId: Long) {
+        viewModelScope.launch {
+            _uiState.value = _uiState.value.copy(
+                isRatingsLoading = true,
+                ratingsErrorMessage = null
+            )
+
+            when (val result = ratingRepository.getRatingsForFarmer(farmerId)) {
+                is Resource.Success -> {
+                    _uiState.value = _uiState.value.copy(
+                        isRatingsLoading = false,
+                        farmerRatings = result.data,
+                        ratingsErrorMessage = null
+                    )
+                }
+
+                is Resource.Error -> {
+                    _uiState.value = _uiState.value.copy(
+                        isRatingsLoading = false,
+                        ratingsErrorMessage = result.message
+                    )
+                }
+
+                is Resource.Loading -> {
+                    _uiState.value = _uiState.value.copy(isRatingsLoading = true)
+                }
+            }
         }
     }
 
@@ -104,9 +139,24 @@ class FarmerProfileViewModel(
         )
     }
 
+    fun onProfileImageUrlChanged(value: String) {
+        _uiState.value = _uiState.value.copy(
+            profileImageUrl = value,
+            errorMessage = null,
+            successMessage = null
+        )
+    }
+
     fun startEdit() {
+        val profile = _uiState.value.profile ?: return
+
         _uiState.value = _uiState.value.copy(
             isEditMode = true,
+            displayName = profile.displayName.orEmpty(),
+            description = profile.description.orEmpty(),
+            selectedCityId = profile.primaryCityId,
+            selectedCityName = profile.primaryCityName,
+            profileImageUrl = profile.profileImageUrl.orEmpty(),
             errorMessage = null,
             successMessage = null
         )
@@ -121,6 +171,7 @@ class FarmerProfileViewModel(
             description = profile.description.orEmpty(),
             selectedCityId = profile.primaryCityId,
             selectedCityName = profile.primaryCityName,
+            profileImageUrl = profile.profileImageUrl.orEmpty(),
             errorMessage = null,
             successMessage = null
         )
@@ -130,9 +181,7 @@ class FarmerProfileViewModel(
         val state = _uiState.value
 
         if (state.displayName.isBlank()) {
-            _uiState.value = state.copy(
-                errorMessage = "Enter display name."
-            )
+            _uiState.value = state.copy(errorMessage = "Enter display name.")
             return
         }
 
@@ -147,11 +196,13 @@ class FarmerProfileViewModel(
                 val result = profileRepository.updateFarmerProfile(
                     displayName = state.displayName.trim(),
                     description = state.description.trim().ifBlank { null },
-                    primaryCityId = state.selectedCityId
+                    primaryCityId = state.selectedCityId,
+                    profileImageUrl = state.profileImageUrl.trim().ifBlank { null }
                 )
             ) {
                 is Resource.Success -> {
                     val updated = result.data
+
                     _uiState.value = _uiState.value.copy(
                         isSaving = false,
                         isEditMode = false,
@@ -160,9 +211,12 @@ class FarmerProfileViewModel(
                         description = updated.description.orEmpty(),
                         selectedCityId = updated.primaryCityId,
                         selectedCityName = updated.primaryCityName,
+                        profileImageUrl = updated.profileImageUrl.orEmpty(),
                         errorMessage = null,
                         successMessage = "Profile updated successfully."
                     )
+
+                    loadFarmerRatings(updated.userId)
                 }
 
                 is Resource.Error -> {
@@ -191,14 +245,16 @@ class FarmerProfileViewModel(
     class Factory(
         private val profileRepository: ProfileRepository,
         private val cityRepository: CityRepository,
-        private val authRepository: AuthRepository
+        private val authRepository: AuthRepository,
+        private val ratingRepository: RatingRepository
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             return FarmerProfileViewModel(
                 profileRepository = profileRepository,
                 cityRepository = cityRepository,
-                authRepository = authRepository
+                authRepository = authRepository,
+                ratingRepository = ratingRepository
             ) as T
         }
     }

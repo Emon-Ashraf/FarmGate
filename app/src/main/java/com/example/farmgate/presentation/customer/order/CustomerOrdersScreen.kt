@@ -42,6 +42,7 @@ import com.example.farmgate.R
 import com.example.farmgate.data.model.Order
 import com.example.farmgate.data.model.OrderStatus
 import java.util.Locale
+import com.example.farmgate.core.util.toReadableDateTime
 
 private enum class OrderTab {
     Active,
@@ -446,7 +447,7 @@ private fun OrderCard(
 
             DetailRow(
                 label = "Pickup due",
-                value = order.pickupDueAt
+                value = order.pickupDueAt.toReadableDateTime()
             )
 
             DetailRow(

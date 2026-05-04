@@ -14,7 +14,9 @@ data class ProductDetails(
     val cityName: String,
     val pickupAddress: String,
     val instructions: String?,
+    val farmerId: Long,
     val farmerName: String,
     val farmerPhone: String?,
+    val farmerProfileImageUrl: String?,
     val imageUrl: String?
 )

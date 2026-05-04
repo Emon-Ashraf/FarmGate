@@ -21,7 +21,8 @@ class ProfileRepository(
     suspend fun updateFarmerProfile(
         displayName: String,
         description: String?,
-        primaryCityId: Long?
+        primaryCityId: Long?,
+        profileImageUrl: String?
     ): Resource<UserProfile> {
         return safeApiCall(
             apiCall = {
@@ -29,7 +30,8 @@ class ProfileRepository(
                     UpdateFarmerProfileRequestDto(
                         displayName = displayName,
                         description = description,
-                        primaryCityId = primaryCityId
+                        primaryCityId = primaryCityId,
+                        profileImageUrl = profileImageUrl
                     )
                 )
             },
@@ -38,13 +40,15 @@ class ProfileRepository(
     }
 
     suspend fun updateCustomerProfile(
-        primaryCityId: Long?
+        primaryCityId: Long?,
+        profileImageUrl: String?
     ): Resource<UserProfile> {
         return safeApiCall(
             apiCall = {
                 profileApi.updateCustomerProfile(
                     UpdateCustomerProfileRequestDto(
-                        primaryCityId = primaryCityId
+                        primaryCityId = primaryCityId,
+                        profileImageUrl = profileImageUrl
                     )
                 )
             },

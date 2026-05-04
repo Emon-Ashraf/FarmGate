@@ -43,6 +43,14 @@ import androidx.compose.ui.unit.dp
 import com.example.farmgate.data.model.UserProfile
 import com.example.farmgate.presentation.components.FarmGatePrimaryButton
 import com.example.farmgate.presentation.components.FarmGateSecondaryButton
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import coil.compose.AsyncImage
 
 @Composable
 fun CustomerProfileScreen(
@@ -51,6 +59,7 @@ fun CustomerProfileScreen(
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNavigation: suspend () -> Unit
@@ -79,6 +88,7 @@ fun CustomerProfileScreen(
                 onEditClick = onEditClick,
                 onCancelEditClick = onCancelEditClick,
                 onCitySelected = onCitySelected,
+                onProfileImageUrlChanged = onProfileImageUrlChanged,
                 onSaveClick = onSaveClick,
                 onLogoutClick = onLogoutClick
             )
@@ -138,6 +148,7 @@ private fun CustomerProfileContent(
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -176,6 +187,7 @@ private fun CustomerProfileContent(
             onEditClick = onEditClick,
             onCancelEditClick = onCancelEditClick,
             onCitySelected = onCitySelected,
+            onProfileImageUrlChanged = onProfileImageUrlChanged,
             onSaveClick = onSaveClick
         )
 
@@ -250,21 +262,11 @@ private fun ProfileHeroCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            Surface(
-                modifier = Modifier.size(88.dp),
-                shape = CircleShape,
-                color = Color(0x1A18D66B)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = initials,
-                        style = MaterialTheme.typography.headlineMedium.copy(
-                            fontWeight = FontWeight.ExtraBold
-                        ),
-                        color = Color(0xFF18D66B)
-                    )
-                }
-            }
+            ProfileAvatar(
+                imageUrl = profile.profileImageUrl,
+                initials = initials,
+                contentDescription = profile.fullName
+            )
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -399,6 +401,7 @@ private fun ProfileLocationCard(
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
+    onProfileImageUrlChanged: (String) -> Unit,
     onSaveClick: () -> Unit
 ) {
     var cityMenuExpanded by remember { mutableStateOf(false) }
@@ -452,6 +455,30 @@ private fun ProfileLocationCard(
                 Column(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
+                    Text(
+                        text = "Profile photo URL",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    OutlinedTextField(
+                        value = uiState.profileImageUrl,
+                        onValueChange = onProfileImageUrlChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("Image URL") },
+                        placeholder = { Text("Paste Cloudinary image link") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Uri,
+                            imeAction = ImeAction.Next
+                        ),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF18D66B),
+                            focusedLabelColor = Color(0xFF18D66B),
+                            cursorColor = Color(0xFF18D66B)
+                        )
+                    )
                     Text(
                         text = "Primary city",
                         style = MaterialTheme.typography.bodyMedium,
@@ -572,7 +599,7 @@ private fun ProfileHelpCard() {
                 )
 
                 Text(
-                    text = "Currently, customers can update only their primary city. Name, phone, email, and profile photo require backend support.",
+                    text = "Currently, customers can update only their primary city. Name, phone, email, and profile photo.",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -674,4 +701,42 @@ private fun UserProfile.initials(): String {
         .joinToString("") { it.first().uppercase() }
 
     return result.ifBlank { "U" }
+}
+
+
+@Composable
+private fun ProfileAvatar(
+    imageUrl: String?,
+    initials: String,
+    contentDescription: String
+) {
+    Surface(
+        modifier = Modifier.size(88.dp),
+        shape = CircleShape,
+        color = Color(0x1A18D66B)
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape),
+            contentAlignment = Alignment.Center
+        ) {
+            if (!imageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = imageUrl,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Text(
+                    text = initials,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    color = Color(0xFF18D66B)
+                )
+            }
+        }
+    }
 }

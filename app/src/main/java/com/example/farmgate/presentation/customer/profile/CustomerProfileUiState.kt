@@ -7,8 +7,11 @@ data class CustomerProfileUiState(
     val isLoading: Boolean = true,
     val profile: UserProfile? = null,
     val cities: List<City> = emptyList(),
+
     val selectedCityId: Long? = null,
     val selectedCityName: String? = null,
+    val profileImageUrl: String = "",
+
     val isEditMode: Boolean = false,
     val isSaving: Boolean = false,
     val errorMessage: String? = null,

@@ -1,6 +1,6 @@
 package com.example.farmgate.data.remote.dto.profile
 
-
 data class UpdateCustomerProfileRequestDto(
-    val primaryCityId: Long?
+    val primaryCityId: Long?,
+    val profileImageUrl: String?
 )

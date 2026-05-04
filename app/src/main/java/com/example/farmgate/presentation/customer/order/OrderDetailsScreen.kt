@@ -48,6 +48,7 @@ import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import com.example.farmgate.core.util.toReadableDateTime
 
 @Composable
 fun OrderDetailsScreen(
@@ -519,7 +520,7 @@ private fun OrderStatus.toUi(): OrderStatusUi {
             background = Color(0x1A18D66B),
             content = Color(0xFF18D66B),
             description = { order ->
-                "Your items are confirmed. Please collect them before ${order.pickupDueAt}."
+                "Your items are confirmed. Please collect them before ${order.pickupDueAt.toReadableDateTime()}."
             }
         )
         OrderStatus.Completed -> OrderStatusUi(
@@ -775,7 +776,7 @@ private fun PickupDetailsCard(
                     }
 
                     Text(
-                        text = "Pickup due: ${order.pickupDueAt}",
+                        text = "Pickup due: ${order.pickupDueAt.toReadableDateTime()}",
                         style = MaterialTheme.typography.bodySmall.copy(
                             fontWeight = FontWeight.SemiBold
                         ),

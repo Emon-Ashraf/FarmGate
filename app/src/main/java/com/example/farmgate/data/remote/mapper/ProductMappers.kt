@@ -36,8 +36,10 @@ fun ProductDetailsDto.toModel(): ProductDetails {
         cityName = cityName,
         pickupAddress = pickupAddress,
         instructions = instructions,
+        farmerId = farmerId,
         farmerName = farmerName,
         farmerPhone = farmerPhone,
+        farmerProfileImageUrl = farmerProfileImageUrl,
         imageUrl = imageUrl
     )
 }

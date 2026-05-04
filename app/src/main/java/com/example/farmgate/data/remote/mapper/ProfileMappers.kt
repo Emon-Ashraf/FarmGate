@@ -9,6 +9,7 @@ fun ProfileResponseDto.toModel(): UserProfile {
         fullName = fullName,
         phoneNumber = phoneNumber,
         email = email,
+        profileImageUrl = profileImageUrl,
         primaryCityId = primaryCityId,
         primaryCityName = primaryCityName,
         displayName = displayName,

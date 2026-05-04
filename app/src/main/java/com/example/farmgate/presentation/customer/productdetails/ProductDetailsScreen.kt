@@ -18,8 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -50,9 +48,9 @@ import java.util.Locale
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.width
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.net.toUri
 
 @Composable
 fun ProductDetailsScreen(
@@ -209,7 +207,11 @@ private fun ProductDetailsContent(
 
                         DetailDivider()
 
-                        FarmerCard(product = product)
+                        FarmerCard(
+                            product = product,
+                            ratings = uiState.farmerRatings,
+                            isRatingsLoading = uiState.isRatingsLoading
+                        )
 
                         PickupLocationCard(product = product)
 
@@ -584,7 +586,7 @@ private fun openDialer(
 ) {
     val intent = Intent(
         Intent.ACTION_DIAL,
-        Uri.parse("tel:$phoneNumber")
+        "tel:$phoneNumber".toUri()
     )
     context.startActivity(intent)
 }
@@ -596,7 +598,7 @@ private fun openMapForAddress(
     val encodedAddress = Uri.encode(address)
     val intent = Intent(
         Intent.ACTION_VIEW,
-        Uri.parse("geo:0,0?q=$encodedAddress")
+        "geo:0,0?q=$encodedAddress".toUri()
     )
     context.startActivity(intent)
 }
@@ -621,9 +623,14 @@ private fun SheetHandle() {
 
 @Composable
 private fun FarmerCard(
-    product: ProductDetails
+    product: ProductDetails,
+    ratings: List<com.example.farmgate.data.model.Rating>,
+    isRatingsLoading: Boolean
 ) {
     val context = LocalContext.current
+
+    val ratingText = if (isRatingsLoading) "Loading rating..." else averageRatingText(ratings)
+    val reviewText = if (isRatingsLoading) "Please wait" else reviewCountText(ratings.size)
 
     Surface(
         shape = RoundedCornerShape(16.dp),
@@ -637,17 +644,28 @@ private fun FarmerCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            FarmerAvatar(name = product.farmerName)
+            // ✅ Farmer profile image
+            if (!product.farmerProfileImageUrl.isNullOrBlank()) {
+                AsyncImage(
+                    model = product.farmerProfileImageUrl,
+                    contentDescription = "Farmer profile",
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .background(Color.LightGray, CircleShape)
+                        .clip(CircleShape)
+                )
+            } else {
+                FarmerAvatar(name = product.farmerName)
+            }
 
             Column(
                 modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
                     text = product.farmerName,
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        fontWeight = FontWeight.Bold
-                    ),
+                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -660,6 +678,37 @@ private fun FarmerCard(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(999.dp),
+                        color = Color(0x1A18D66B)
+                    ) {
+                        Text(
+                            text = if (ratings.isEmpty() && !isRatingsLoading) {
+                                "No rating"
+                            } else {
+                                "★ $ratingText"
+                            },
+                            modifier = Modifier.padding(horizontal = 9.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color(0xFF18D66B)
+                        )
+                    }
+
+                    Text(
+                        text = reviewText,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
 
             if (!product.farmerPhone.isNullOrBlank()) {
@@ -788,5 +837,20 @@ private fun PickupLocationCard(
                 }
             }
         }
+    }
+}
+
+private fun averageRatingText(ratings: List<com.example.farmgate.data.model.Rating>): String {
+    if (ratings.isEmpty()) return "No ratings yet"
+
+    val average = ratings.map { it.score }.average()
+    return String.format(Locale.US, "%.1f", average)
+}
+
+private fun reviewCountText(count: Int): String {
+    return when (count) {
+        0 -> "No reviews"
+        1 -> "1 review"
+        else -> "$count reviews"
     }
 }
