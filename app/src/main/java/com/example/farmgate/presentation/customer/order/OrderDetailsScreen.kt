@@ -56,6 +56,7 @@ fun OrderDetailsScreen(
     onBackClick: () -> Unit,
     onRetry: () -> Unit,
     onCancelNoteChanged: (String) -> Unit,
+    onPaymentMethodChanged: (String) -> Unit,
     onPaymentReferenceChanged: (String) -> Unit,
     onCancelOrderClick: () -> Unit,
     onConfirmFeeClick: () -> Unit,
@@ -181,59 +182,13 @@ fun OrderDetailsScreen(
                     }
 
                     if (order.status == OrderStatus.AwaitingFee) {
-                        Card(
-                            shape = RoundedCornerShape(20.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color(0x1AF97316)
-                            )
-                        ) {
-                            Column(
-                                modifier = Modifier.padding(16.dp),
-                                verticalArrangement = Arrangement.spacedBy(10.dp)
-                            ) {
-                                Text(
-                                    text = "Commission payment pending",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold
-                                    ),
-                                    color = Color(0xFFB45309)
-                                )
-
-                                Text(
-                                    text = "Platform fee must be paid to continue this order. Product payment is still made directly to the farmer at pickup.",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = Color(0xFFB45309)
-                                )
-
-                                OutlinedTextField(
-                                    value = uiState.paymentReference,
-                                    onValueChange = onPaymentReferenceChanged,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    singleLine = true,
-                                    label = { Text("Optional payment reference") },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text
-                                    ),
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = OutlinedTextFieldDefaults.colors(
-                                        focusedBorderColor = Color(0xFF18D66B),
-                                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
-                                    )
-                                )
-
-                                FarmGatePrimaryButton(
-                                    text = if (uiState.isConfirmingFee) {
-                                        "Confirming..."
-                                    } else {
-                                        "Confirm Service Fee • BDT ${formatMoney(order.serviceFeeAmount)}"
-                                    },
-                                    onClick = onConfirmFeeClick,
-                                    enabled = !uiState.isConfirmingFee,
-                                    isLoading = uiState.isConfirmingFee,
-                                    modifier = Modifier.heightIn(min = 50.dp)
-                                )
-                            }
-                        }
+                        MockPaymentCard(
+                            uiState = uiState,
+                            order = order,
+                            onPaymentMethodChanged = onPaymentMethodChanged,
+                            onPaymentReferenceChanged = onPaymentReferenceChanged,
+                            onConfirmFeeClick = onConfirmFeeClick
+                        )
                     }
 
                     FarmerContactCard(order = order)
@@ -466,6 +421,155 @@ private fun SummaryRow(
             ),
             color = MaterialTheme.colorScheme.onSurface
         )
+    }
+}
+
+@Composable
+private fun MockPaymentCard(
+    uiState: OrderDetailsUiState,
+    order: Order,
+    onPaymentMethodChanged: (String) -> Unit,
+    onPaymentReferenceChanged: (String) -> Unit,
+    onConfirmFeeClick: () -> Unit
+) {
+    val paymentMethods = listOf("bKash", "Nagad", "Card")
+
+    Card(
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0x1AF97316)
+        )
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "Service fee payment",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color(0xFFB45309)
+            )
+
+            Text(
+                text = "This is a simulated payment step for the platform service fee. Product payment is made directly to the farmer at pickup.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color(0xFFB45309)
+            )
+
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(18.dp),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.88f)
+            ) {
+                Column(
+                    modifier = Modifier.padding(14.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    SummaryRow(
+                        label = "Service fee",
+                        value = "BDT ${formatMoney(order.serviceFeeAmount)}"
+                    )
+
+                    Text(
+                        text = "Choose payment method",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = FontWeight.SemiBold
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        paymentMethods.forEach { method ->
+                            PaymentMethodChip(
+                                text = method,
+                                selected = uiState.selectedPaymentMethod == method,
+                                onClick = { onPaymentMethodChanged(method) },
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    }
+
+                    OutlinedTextField(
+                        value = uiState.paymentReference,
+                        onValueChange = onPaymentReferenceChanged,
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text("Transaction reference") },
+                        placeholder = {
+                            Text(
+                                when (uiState.selectedPaymentMethod) {
+                                    "bKash" -> "Example: BKASH-TXN-123456"
+                                    "Nagad" -> "Example: NAGAD-TXN-123456"
+                                    else -> "Example: CARD-DEMO-123456"
+                                }
+                            )
+                        },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Text
+                        ),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color(0xFF18D66B),
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline
+                        )
+                    )
+
+                    Text(
+                        text = "For demo, you may leave the reference empty. The app will generate a mock reference automatically.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
+
+            FarmGatePrimaryButton(
+                text = if (uiState.isConfirmingFee) {
+                    "Confirming..."
+                } else {
+                    "Confirm ${uiState.selectedPaymentMethod} Payment"
+                },
+                onClick = onConfirmFeeClick,
+                enabled = !uiState.isConfirmingFee,
+                isLoading = uiState.isConfirmingFee,
+                modifier = Modifier.heightIn(min = 50.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun PaymentMethodChip(
+    text: String,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.clickable(onClick = onClick),
+        shape = RoundedCornerShape(14.dp),
+        color = if (selected) Color(0x1A18D66B) else MaterialTheme.colorScheme.surfaceVariant,
+        border = androidx.compose.foundation.BorderStroke(
+            width = 1.dp,
+            color = if (selected) Color(0xFF18D66B) else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f)
+        )
+    ) {
+        Box(
+            modifier = Modifier.padding(vertical = 10.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold
+                ),
+                color = if (selected) Color(0xFF18D66B) else MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
 

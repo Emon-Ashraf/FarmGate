@@ -669,6 +669,7 @@ fun AppNavGraph(
                 onBackClick = { navController.popBackStack() },
                 onRetry = viewModel::loadOrder,
                 onCancelNoteChanged = viewModel::onCancelNoteChanged,
+                onPaymentMethodChanged = viewModel::onPaymentMethodChanged,
                 onPaymentReferenceChanged = viewModel::onPaymentReferenceChanged,
                 onCancelOrderClick = viewModel::cancelOrder,
                 onConfirmFeeClick = viewModel::confirmServiceFee,

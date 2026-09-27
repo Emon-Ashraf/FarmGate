@@ -1,9 +1,9 @@
 package com.example.farmgate.presentation.components
 
-
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,7 +35,8 @@ fun FarmGatePasswordField(
     placeholder: String,
     enabled: Boolean,
     imeAction: ImeAction,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cornerRadius: Int = 12
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -58,6 +59,7 @@ fun FarmGatePasswordField(
         },
         modifier = modifier.fillMaxWidth(),
         singleLine = true,
+        shape = RoundedCornerShape(cornerRadius.dp),
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Password,
             imeAction = imeAction
@@ -73,7 +75,13 @@ fun FarmGatePasswordField(
                 enabled = enabled
             ) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_visibility_off),
+                    painter = painterResource(
+                        id = if (passwordVisible) {
+                            R.drawable.ic_visibility
+                        } else {
+                            R.drawable.ic_visibility_off
+                        }
+                    ),
                     contentDescription = "Toggle password visibility",
                     tint = Color(0xFF5C7A66)
                 )

@@ -1,5 +1,6 @@
 package com.example.farmgate.presentation.auth.register
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -75,11 +76,10 @@ fun RegisterScreen(
         TopAppBar(
             title = {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
+                    Image(
                         painter = painterResource(id = R.drawable.farmgate_logo),
                         contentDescription = "Logo",
-                        tint = green,
-                        modifier = Modifier.size(18.dp)
+                        modifier = Modifier.size(28.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(

@@ -6,8 +6,12 @@ data class OrderDetailsUiState(
     val isLoading: Boolean = true,
     val order: Order? = null,
     val errorMessage: String? = null,
+
     val cancelNote: String = "",
+
+    val selectedPaymentMethod: String = "bKash",
     val paymentReference: String = "",
+
     val isCancelling: Boolean = false,
     val isConfirmingFee: Boolean = false,
     val actionErrorMessage: String? = null,

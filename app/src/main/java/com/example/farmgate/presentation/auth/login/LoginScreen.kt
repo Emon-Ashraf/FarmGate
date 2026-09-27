@@ -1,5 +1,6 @@
 package com.example.farmgate.presentation.auth.login
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -63,13 +64,12 @@ fun LoginScreen(
         Surface(
             modifier = Modifier.size(56.dp),
             shape = RoundedCornerShape(14.dp),
-            color = Color(0xFFDFF7EA)
+            color = Color.White
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
+                Image(
                     painter = painterResource(id = R.drawable.farmgate_logo),
                     contentDescription = "Logo",
-                    tint = Color(0xFF18D66B),
                     modifier = Modifier.size(28.dp)
                 )
             }

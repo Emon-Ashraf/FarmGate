@@ -72,6 +72,14 @@ class OrderDetailsViewModel(
         )
     }
 
+    fun onPaymentMethodChanged(value: String) {
+        _uiState.value = _uiState.value.copy(
+            selectedPaymentMethod = value,
+            actionErrorMessage = null,
+            actionSuccessMessage = null
+        )
+    }
+
     fun cancelOrder() {
         val order = _uiState.value.order ?: return
 
@@ -125,6 +133,7 @@ class OrderDetailsViewModel(
 
     fun confirmServiceFee() {
         val order = _uiState.value.order ?: return
+        val state = _uiState.value
 
         if (order.status != OrderStatus.AwaitingFee) {
             _uiState.value = _uiState.value.copy(
@@ -132,6 +141,15 @@ class OrderDetailsViewModel(
                 actionSuccessMessage = null
             )
             return
+        }
+
+        val method = state.selectedPaymentMethod.trim()
+        val referenceInput = state.paymentReference.trim()
+
+        val finalReference = if (referenceInput.isBlank()) {
+            "$method: DEMO-${order.id}"
+        } else {
+            "$method: $referenceInput"
         }
 
         viewModelScope.launch {
@@ -144,7 +162,7 @@ class OrderDetailsViewModel(
             when (
                 val result = orderRepository.confirmServiceFee(
                     orderId = orderId,
-                    paymentReference = _uiState.value.paymentReference.takeIf { it.isNotBlank() }
+                    paymentReference = finalReference
                 )
             ) {
                 is Resource.Success -> {
