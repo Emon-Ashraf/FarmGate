@@ -10,6 +10,21 @@ FarmGate allows customers to discover local farmers and products, place pickup o
 
 The project uses a pickup-only MVP model. Product payments take place offline during pickup, while the application manages the ordering workflow and platform service-fee confirmation.
 
+## Screenshots
+
+### Customer journey
+
+<p align="center">
+  <img src="docs/screenshots/01-welcome.png" width="220" alt="FarmGate welcome screen">
+  <img src="docs/screenshots/02-registration.png" width="220" alt="FarmGate customer and farmer registration">
+  <img src="docs/screenshots/03-customer-home.png" width="220" alt="FarmGate customer marketplace">
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/04-product-details.png" width="220" alt="FarmGate product details and pickup information">
+  <img src="docs/screenshots/05-review-order.png" width="220" alt="FarmGate order review screen">
+</p>
+
 ## User Roles
 
 ### Customer
