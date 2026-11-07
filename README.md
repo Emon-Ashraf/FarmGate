@@ -180,6 +180,16 @@ FarmGate is an academic MVP developed as a bachelor’s thesis project. It demon
 
 The application is not currently distributed through Google Play and should not be considered a production deployment.
 
+## Copyright and Usage
+
+Copyright (c) 2026 Md Ashraful Islam Emon. All rights reserved, to the extent of the author's ownership rights.
+
+FarmGate is publicly available on GitHub to showcase the author's academic software engineering work and allow potential employers and reviewers to inspect its implementation. **This repository is not distributed under an open-source license.**
+
+Except for permissions provided by GitHub's Terms of Service or applicable law, no permission is granted to reproduce, modify, redistribute, sublicense, or commercially exploit the original source code or project assets without prior written permission from the applicable copyright holder. The setup instructions above do not grant additional license rights.
+
+Third-party dependencies, libraries, and assets remain subject to their own licenses and copyright notices.
+
 ## Author
 
 **Md Ashraful Islam Emon**
