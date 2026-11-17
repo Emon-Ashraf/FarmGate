@@ -7,6 +7,7 @@ import com.example.farmgate.data.model.UserProfile
 data class FarmerProfileUiState(
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,
+    val imageUploadBlocked: Boolean = false,
     val isLoggingOut: Boolean = false,
     val profile: UserProfile? = null,
     val cities: List<City> = emptyList(),

@@ -21,6 +21,9 @@ import java.util.concurrent.TimeUnit
 import com.example.farmgate.data.remote.api.PickupLocationsApi
 
 object ApiClient {
+    fun provideImagesApi(context: Context): com.example.farmgate.media.ImagesApi =
+        provideRetrofit(SessionManager(context.applicationContext)).create(com.example.farmgate.media.ImagesApi::class.java)
+
 
     private fun provideGson(): Gson {
         return GsonBuilder()
@@ -30,7 +33,8 @@ object ApiClient {
 
     private fun provideLoggingInterceptor(): HttpLoggingInterceptor {
         return HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BASIC
+            redactHeader("Authorization")
         }
     }
 

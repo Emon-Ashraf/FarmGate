@@ -60,6 +60,7 @@ fun CustomerProfileScreen(
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit,
     onNavigation: suspend () -> Unit
@@ -89,6 +90,7 @@ fun CustomerProfileScreen(
                 onCancelEditClick = onCancelEditClick,
                 onCitySelected = onCitySelected,
                 onProfileImageUrlChanged = onProfileImageUrlChanged,
+                onImageUploadBlockedChanged = onImageUploadBlockedChanged,
                 onSaveClick = onSaveClick,
                 onLogoutClick = onLogoutClick
             )
@@ -149,6 +151,7 @@ private fun CustomerProfileContent(
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onLogoutClick: () -> Unit
 ) {
@@ -188,6 +191,7 @@ private fun CustomerProfileContent(
             onCancelEditClick = onCancelEditClick,
             onCitySelected = onCitySelected,
             onProfileImageUrlChanged = onProfileImageUrlChanged,
+                onImageUploadBlockedChanged = onImageUploadBlockedChanged,
             onSaveClick = onSaveClick
         )
 
@@ -402,6 +406,7 @@ private fun ProfileLocationCard(
     onCancelEditClick: () -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onSaveClick: () -> Unit
 ) {
     var cityMenuExpanded by remember { mutableStateOf(false) }
@@ -456,28 +461,14 @@ private fun ProfileLocationCard(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Text(
-                        text = "Profile photo URL",
+                        text = "Profile photo",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
 
-                    OutlinedTextField(
-                        value = uiState.profileImageUrl,
-                        onValueChange = onProfileImageUrlChanged,
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        label = { Text("Image URL") },
-                        placeholder = { Text("Paste Cloudinary image link") },
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Uri,
-                            imeAction = ImeAction.Next
-                        ),
-                        shape = RoundedCornerShape(18.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = Color(0xFF18D66B),
-                            focusedLabelColor = Color(0xFF18D66B),
-                            cursorColor = Color(0xFF18D66B)
-                        )
+                    com.example.farmgate.media.ImageUploadField(
+                        currentUrl = uiState.profileImageUrl, purpose = "avatar", enabled = !uiState.isSaving,
+                        onUrlChanged = onProfileImageUrlChanged, onBlockedChanged = onImageUploadBlockedChanged
                     )
                     Text(
                         text = "Primary city",
@@ -542,7 +533,7 @@ private fun ProfileLocationCard(
                         FarmGatePrimaryButton(
                             text = if (uiState.isSaving) "Saving..." else "Save",
                             onClick = onSaveClick,
-                            enabled = !uiState.isSaving,
+                            enabled = !uiState.imageUploadBlocked && !uiState.isSaving,
                             isLoading = uiState.isSaving,
                             modifier = Modifier
                                 .weight(1f)

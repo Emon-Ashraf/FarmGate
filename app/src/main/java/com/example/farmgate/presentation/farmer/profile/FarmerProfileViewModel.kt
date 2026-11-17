@@ -177,7 +177,12 @@ class FarmerProfileViewModel(
         )
     }
 
+    fun onImageUploadBlockedChanged(blocked: Boolean) {
+        _uiState.value = _uiState.value.copy(imageUploadBlocked = blocked)
+    }
+
     fun saveProfile() {
+        if (_uiState.value.imageUploadBlocked || _uiState.value.isSaving) return
         val state = _uiState.value
 
         if (state.displayName.isBlank()) {

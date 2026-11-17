@@ -69,6 +69,7 @@ fun FarmerProductFormScreen(
     onPricePerUnitChanged: (String) -> Unit,
     onAvailableQuantityChanged: (String) -> Unit,
     onImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onSaveClick: () -> Unit,
     onDeactivateClick: () -> Unit
 ) {
@@ -336,20 +337,10 @@ fun FarmerProductFormScreen(
                         )
                     }
 
-                    SectionCard(
-                        title = "Product image",
-                        subtitle = "For now, image is added using a URL."
-                    ) {
-                        FarmGateOutlinedField(
-                            value = uiState.imageUrl,
-                            onValueChange = onImageUrlChanged,
-                            label = "Image URL",
-                            placeholder = "Paste product image link",
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        HelperText(
-                            text = "Later, this can be replaced with real image upload when backend support is added."
+                    SectionCard(title = "Product image", subtitle = "Choose a photo or take a new one.") {
+                        com.example.farmgate.media.ImageUploadField(
+                            currentUrl = uiState.imageUrl, purpose = "product", enabled = !uiState.isSaving,
+                            onUrlChanged = onImageUrlChanged, onBlockedChanged = onImageUploadBlockedChanged
                         )
                     }
 
@@ -374,6 +365,7 @@ fun FarmerProductFormScreen(
                     isEditMode = uiState.isEditMode,
                     hasPickupLocations = hasPickupLocations,
                     isSaving = uiState.isSaving,
+                    imageUploadBlocked = uiState.imageUploadBlocked,
                     isDeleting = uiState.isDeleting,
                     onSaveClick = onSaveClick,
                     onDeactivateClick = onDeactivateClick
@@ -688,6 +680,7 @@ private fun ProductFormBottomBar(
     isEditMode: Boolean,
     hasPickupLocations: Boolean,
     isSaving: Boolean,
+    imageUploadBlocked: Boolean,
     isDeleting: Boolean,
     onSaveClick: () -> Unit,
     onDeactivateClick: () -> Unit
@@ -712,7 +705,7 @@ private fun ProductFormBottomBar(
                     else -> "Create product"
                 },
                 onClick = onSaveClick,
-                enabled = !isSaving && !isDeleting && hasPickupLocations,
+                enabled = !imageUploadBlocked && !isSaving && !isDeleting && hasPickupLocations,
                 isLoading = isSaving,
                 modifier = Modifier.heightIn(min = 52.dp)
             )

@@ -14,6 +14,7 @@ data class CustomerProfileUiState(
 
     val isEditMode: Boolean = false,
     val isSaving: Boolean = false,
+    val imageUploadBlocked: Boolean = false,
     val errorMessage: String? = null,
     val actionErrorMessage: String? = null,
     val actionSuccessMessage: String? = null,
