@@ -72,6 +72,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.exifinterface)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -84,6 +85,7 @@ dependencies {
     implementation(libs.androidx.foundation)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

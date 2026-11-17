@@ -64,6 +64,7 @@ fun FarmerProfileScreen(
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -95,6 +96,7 @@ fun FarmerProfileScreen(
                 onDescriptionChanged = onDescriptionChanged,
                 onCitySelected = onCitySelected,
                 onProfileImageUrlChanged = onProfileImageUrlChanged,
+                onImageUploadBlockedChanged = onImageUploadBlockedChanged,
                 onEditClick = onEditClick,
                 onCancelEditClick = onCancelEditClick,
                 onSaveClick = onSaveClick,
@@ -193,6 +195,7 @@ private fun FarmerProfileContent(
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit,
@@ -232,6 +235,7 @@ private fun FarmerProfileContent(
             onDescriptionChanged = onDescriptionChanged,
             onCitySelected = onCitySelected,
             onProfileImageUrlChanged = onProfileImageUrlChanged,
+                onImageUploadBlockedChanged = onImageUploadBlockedChanged,
             onEditClick = onEditClick,
             onCancelEditClick = onCancelEditClick,
             onSaveClick = onSaveClick
@@ -689,6 +693,7 @@ private fun PublicFarmerInfoCard(
     onDescriptionChanged: (String) -> Unit,
     onCitySelected: (Long) -> Unit,
     onProfileImageUrlChanged: (String) -> Unit,
+    onImageUploadBlockedChanged: (Boolean) -> Unit,
     onEditClick: () -> Unit,
     onCancelEditClick: () -> Unit,
     onSaveClick: () -> Unit
@@ -724,7 +729,7 @@ private fun PublicFarmerInfoCard(
                     Text(
                         text = "Edit",
                         modifier = Modifier.clickable(
-                            enabled = !uiState.isSaving && !uiState.isLoggingOut,
+                            enabled = !uiState.imageUploadBlocked && !uiState.isSaving && !uiState.isLoggingOut,
                             onClick = onEditClick
                         ),
                         style = MaterialTheme.typography.labelLarge.copy(
@@ -772,7 +777,7 @@ private fun PublicFarmerInfoCard(
                         onValueChange = onDisplayNameChanged,
                         label = "Display name",
                         placeholder = "Example: Green Valley Farms",
-                        enabled = !uiState.isSaving && !uiState.isLoggingOut,
+                        enabled = !uiState.imageUploadBlocked && !uiState.isSaving && !uiState.isLoggingOut,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Text,
@@ -786,7 +791,7 @@ private fun PublicFarmerInfoCard(
                         onValueChange = onDescriptionChanged,
                         label = "Description",
                         placeholder = "Describe your farm, products, freshness, or pickup style",
-                        enabled = !uiState.isSaving && !uiState.isLoggingOut,
+                        enabled = !uiState.imageUploadBlocked && !uiState.isSaving && !uiState.isLoggingOut,
                         minLines = 4,
                         maxLines = 6,
                         keyboardOptions = KeyboardOptions(
@@ -798,18 +803,9 @@ private fun PublicFarmerInfoCard(
                             .wrapContentHeight()
                     )
 
-                    FarmGateOutlinedField(
-                        value = uiState.profileImageUrl,
-                        onValueChange = onProfileImageUrlChanged,
-                        label = "Profile photo URL",
-                        placeholder = "Paste Cloudinary image link",
-                        enabled = !uiState.isSaving && !uiState.isLoggingOut,
-                        singleLine = true,
-                        keyboardOptions = KeyboardOptions(
-                            keyboardType = KeyboardType.Uri,
-                            imeAction = ImeAction.Next
-                        ),
-                        modifier = Modifier.fillMaxWidth()
+                    com.example.farmgate.media.ImageUploadField(
+                        currentUrl = uiState.profileImageUrl, purpose = "avatar", enabled = !uiState.isSaving,
+                        onUrlChanged = onProfileImageUrlChanged, onBlockedChanged = onImageUploadBlockedChanged
                     )
 
                     Column(
@@ -826,7 +822,7 @@ private fun PublicFarmerInfoCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .clickable(
-                                        enabled = !uiState.isSaving && !uiState.isLoggingOut
+                                        enabled = !uiState.imageUploadBlocked && !uiState.isSaving && !uiState.isLoggingOut
                                     ) {
                                         cityMenuExpanded = true
                                     },
@@ -891,7 +887,7 @@ private fun PublicFarmerInfoCard(
                         FarmGatePrimaryButton(
                             text = if (uiState.isSaving) "Saving..." else "Save",
                             onClick = onSaveClick,
-                            enabled = !uiState.isSaving && !uiState.isLoggingOut,
+                            enabled = !uiState.imageUploadBlocked && !uiState.isSaving && !uiState.isLoggingOut,
                             isLoading = uiState.isSaving,
                             modifier = Modifier
                                 .weight(1f)

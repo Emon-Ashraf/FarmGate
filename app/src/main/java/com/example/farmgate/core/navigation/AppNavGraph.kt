@@ -253,6 +253,7 @@ fun AppNavGraph(
                                 onCancelEditClick = viewModel::cancelEditMode,
                                 onCitySelected = viewModel::onCitySelected,
                                 onProfileImageUrlChanged = viewModel::onProfileImageUrlChanged,
+                                onImageUploadBlockedChanged = viewModel::onImageUploadBlockedChanged,
                                 onSaveClick = viewModel::saveProfile,
                                 onLogoutClick = viewModel::logout,
                                 onNavigation = {
@@ -496,6 +497,7 @@ fun AppNavGraph(
                                 onDescriptionChanged = viewModel::onDescriptionChanged,
                                 onCitySelected = viewModel::onCitySelected,
                                 onProfileImageUrlChanged = viewModel::onProfileImageUrlChanged,
+                                onImageUploadBlockedChanged = viewModel::onImageUploadBlockedChanged,
                                 onEditClick = viewModel::startEdit,
                                 onCancelEditClick = viewModel::cancelEdit,
                                 onSaveClick = viewModel::saveProfile,
@@ -538,6 +540,7 @@ fun AppNavGraph(
                                 onPricePerUnitChanged = viewModel::onPricePerUnitChanged,
                                 onAvailableQuantityChanged = viewModel::onAvailableQuantityChanged,
                                 onImageUrlChanged = viewModel::onImageUrlChanged,
+                                onImageUploadBlockedChanged = viewModel::onImageUploadBlockedChanged,
                                 onSaveClick = viewModel::saveProduct,
                                 onDeactivateClick = {}
                             )
@@ -577,6 +580,7 @@ fun AppNavGraph(
                                 onPricePerUnitChanged = viewModel::onPricePerUnitChanged,
                                 onAvailableQuantityChanged = viewModel::onAvailableQuantityChanged,
                                 onImageUrlChanged = viewModel::onImageUrlChanged,
+                                onImageUploadBlockedChanged = viewModel::onImageUploadBlockedChanged,
                                 onSaveClick = viewModel::saveProduct,
                                 onDeactivateClick = viewModel::deactivateProduct
                             )

@@ -5,6 +5,7 @@ import com.example.farmgate.data.model.PickupLocation
 data class FarmerProductFormUiState(
     val isLoading: Boolean = false,
     val isSaving: Boolean = false,
+    val imageUploadBlocked: Boolean = false,
     val isDeleting: Boolean = false,
     val isEditMode: Boolean = false,
 
